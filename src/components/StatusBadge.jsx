@@ -1,0 +1,61 @@
+const STYLES = {
+  Optimal: "bg-emerald-50 text-emerald-600",
+  Active: "bg-emerald-50 text-emerald-600",
+  Approved: "bg-emerald-50 text-emerald-600",
+  Paid: "bg-emerald-50 text-emerald-600",
+  Delivered: "bg-emerald-50 text-emerald-600",
+  Refunded: "bg-emerald-50 text-emerald-600",
+  Shipped: "bg-indigo-50 text-indigo-600",
+  Packed: "bg-indigo-50 text-indigo-600",
+  "In Transit": "bg-indigo-50 text-indigo-600",
+  Processing: "bg-amber-50 text-amber-600",
+  Pending: "bg-amber-50 text-amber-600",
+  Requested: "bg-amber-50 text-amber-600",
+  Preparing: "bg-amber-50 text-amber-600",
+  "Low Stock": "bg-amber-50 text-amber-600",
+  Monitor: "bg-amber-50 text-amber-600",
+  "Near Full": "bg-amber-50 text-amber-600",
+  Watch: "bg-amber-50 text-amber-600",
+  Overstock: "bg-blue-50 text-blue-600",
+  "Out of Stock": "bg-red-50 text-red-600",
+  Failed: "bg-rose-50 text-rose-600",
+  Cancelled: "bg-rose-50 text-rose-600",
+  Rejected: "bg-rose-50 text-rose-600",
+  "On Hold": "bg-slate-100 text-slate-600",
+  Inactive: "bg-slate-100 text-slate-500",
+  Maintenance: "bg-slate-100 text-slate-500",
+  "N/A": "bg-slate-100 text-slate-600",
+  Resolved: "bg-emerald-50 text-emerald-600",
+  Reimbursed: "bg-emerald-50 text-emerald-600",
+  Enabled: "bg-emerald-50 text-emerald-600",
+  Connected: "bg-emerald-50 text-emerald-600",
+  Sent: "bg-emerald-50 text-emerald-600",
+  Open: "bg-amber-50 text-amber-600",
+  Scheduled: "bg-indigo-50 text-indigo-600",
+  Investigating: "bg-amber-50 text-amber-600",
+  Denied: "bg-rose-50 text-rose-600",
+  Disabled: "bg-slate-100 text-slate-500",
+  Draft: "bg-slate-100 text-slate-500",
+  Efficient: "bg-emerald-50 text-emerald-600",
+  Wasteful: "bg-rose-50 text-rose-600",
+  Recommended: "bg-emerald-50 text-emerald-600",
+  VIP: "bg-indigo-50 text-indigo-600",
+  "Reorder Now": "bg-rose-50 text-rose-600",
+  "On Track": "bg-emerald-50 text-emerald-600",
+  Overstocked: "bg-blue-50 text-blue-600",
+  Compliant: "bg-emerald-50 text-emerald-600",
+  Violation: "bg-rose-50 text-rose-600",
+  Critical: "bg-rose-50 text-rose-600",
+  Warning: "bg-amber-50 text-amber-600",
+  Info: "bg-blue-50 text-blue-600",
+  Posted: "bg-emerald-50 text-emerald-600",
+};
+
+export default function StatusBadge({ status, className = "" }) {
+  const style = STYLES[status] || "bg-slate-100 text-slate-600";
+  return (
+    <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold whitespace-nowrap ${style} ${className}`}>
+      {status}
+    </span>
+  );
+}
