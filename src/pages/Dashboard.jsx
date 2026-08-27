@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
-import Layout from "../components/Layout";
+import usePageTitle from "../hooks/usePageTitle";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
 import {
@@ -18,8 +18,8 @@ const quarterLabels = ["Q1 23", "Q2 23", "Q3 23", "Q4 23", "Q1 24", "Q2 24", "Q3
 const barShades = ["bg-indigo-100", "bg-indigo-200", "bg-indigo-200", "bg-indigo-300", "bg-indigo-400", "bg-indigo-300", "bg-indigo-400"];
 
 export default function Dashboard() {
+  usePageTitle("Inventory Overview");
   return (
-    <Layout title="Inventory Overview">
       <div className="p-4 sm:p-6 lg:p-8">
         <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5 mb-6">
           {kpiOverview.map((kpi, i) => (
@@ -214,6 +214,5 @@ export default function Dashboard() {
           </div>
         </section>
       </div>
-    </Layout>
   );
 }

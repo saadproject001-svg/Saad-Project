@@ -12,7 +12,7 @@ import {
   FileText,
   Download,
 } from "lucide-react";
-import Layout from "../components/Layout";
+import usePageTitle from "../hooks/usePageTitle";
 import StatusBadge from "../components/StatusBadge";
 import FulfillmentBadge from "../components/FulfillmentBadge";
 import { products } from "../data/mockData";
@@ -20,6 +20,7 @@ import { products } from "../data/mockData";
 const TABS = ["Overview", "Stock", "Transactions", "Purchase History", "Sales History", "Suppliers", "Warehouses", "Activity"];
 
 export default function ProductDetails() {
+  usePageTitle("Inventory Overview");
   const { productId } = useParams();
   const product = products.find((p) => p.id === productId);
   const [tab, setTab] = useState("Overview");
@@ -30,7 +31,6 @@ export default function ProductDetails() {
   const reservedPct = product.stock ? Math.round((product.reserved / product.stock) * 100) : 0;
 
   return (
-    <Layout title="Inventory Overview">
       <div className="p-4 sm:p-6 lg:p-8 max-w-[1440px] mx-auto">
         <div className="flex items-center gap-2 text-xs text-slate-400 mb-5">
           <Link to="/" className="hover:text-indigo-600">Dashboard</Link>
@@ -375,6 +375,5 @@ export default function ProductDetails() {
           </section>
         )}
       </div>
-    </Layout>
   );
 }

@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import Layout from "../components/Layout";
+import usePageTitle from "../hooks/usePageTitle";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
 import DataTable from "../components/DataTable";
@@ -53,19 +53,17 @@ function buildColumns(columns) {
 export default function SellerboardPage() {
   const { pathname } = useLocation();
   const config = sellerboardPages[pathname];
+  usePageTitle(config ? config.title : "Not Found");
 
   if (!config) {
     return (
-      <Layout title="Not Found">
-        <div className="p-4 sm:p-6 lg:p-8 text-sm text-slate-500">No page configured for this route yet.</div>
-      </Layout>
+      <div className="p-4 sm:p-6 lg:p-8 text-sm text-slate-500">No page configured for this route yet.</div>
     );
   }
 
   const { badge, title, subtitle, kpis, chart, variant, table, tableTitle, products, settings } = config;
 
   return (
-    <Layout title={title}>
       <div className="p-4 sm:p-6 lg:p-8">
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -112,6 +110,5 @@ export default function SellerboardPage() {
           </section>
         )}
       </div>
-    </Layout>
   );
 }

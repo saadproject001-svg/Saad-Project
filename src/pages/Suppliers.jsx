@@ -17,7 +17,7 @@ import {
   Pencil,
   Mail,
 } from "lucide-react";
-import Layout from "../components/Layout";
+import usePageTitle from "../hooks/usePageTitle";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
 import Pagination from "../components/Pagination";
@@ -26,10 +26,10 @@ import { suppliers, supplierKpis } from "../data/mockData";
 const ICONS = { Truck, Boxes, Package, Cpu, Globe2 };
 
 export default function Suppliers() {
+  usePageTitle("Inventory Overview");
   const [page, setPage] = useState(1);
 
   return (
-    <Layout title="Inventory Overview">
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex items-start justify-between mb-7 flex-wrap gap-4">
           <div>
@@ -150,6 +150,5 @@ export default function Suppliers() {
           </div>
         </section>
       </div>
-    </Layout>
   );
 }

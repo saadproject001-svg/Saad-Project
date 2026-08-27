@@ -15,7 +15,7 @@ import {
   Trash2,
   ChevronDown,
 } from "lucide-react";
-import Layout from "../components/Layout";
+import usePageTitle from "../hooks/usePageTitle";
 import StatusBadge from "../components/StatusBadge";
 import { workspaceUsers, permissionMatrix } from "../data/mockData";
 
@@ -52,6 +52,7 @@ const NOTIFICATIONS = [
 ];
 
 export default function Settings() {
+  usePageTitle("Inventory Overview");
   const [activeSection, setActiveSection] = useState("general");
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const [autoApprove, setAutoApprove] = useState(true);
@@ -60,7 +61,6 @@ export default function Settings() {
     setNotifications((prev) => prev.map((n) => (n.label === label ? { ...n, checked: !n.checked } : n)));
 
   return (
-    <Layout title="Inventory Overview">
       <div className="p-4 sm:p-6 lg:p-8 max-w-[1280px]">
         <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
           <div>
@@ -326,6 +326,5 @@ export default function Settings() {
           </div>
         </div>
       </div>
-    </Layout>
   );
 }

@@ -19,7 +19,7 @@ import {
   Router,
   Monitor,
 } from "lucide-react";
-import Layout from "../components/Layout";
+import usePageTitle from "../hooks/usePageTitle";
 import Pagination from "../components/Pagination";
 import StatusBadge from "../components/StatusBadge";
 import FulfillmentBadge from "../components/FulfillmentBadge";
@@ -40,6 +40,7 @@ const TONE_TEXT = {
 };
 
 export default function Inventory() {
+  usePageTitle("Inventory Overview");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
@@ -52,7 +53,6 @@ export default function Inventory() {
   }, [search]);
 
   return (
-    <Layout title="Inventory Overview">
       <div className="p-5 md:p-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
           <div>
@@ -240,6 +240,5 @@ export default function Inventory() {
           </div>
         </section>
       </div>
-    </Layout>
   );
 }

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Download, AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
-import Layout from "../components/Layout";
+import usePageTitle from "../hooks/usePageTitle";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
 import {
@@ -13,10 +13,10 @@ import {
 } from "../data/mockData";
 
 export default function Analytics() {
+  usePageTitle("Inventory Overview");
   const spendPct = Math.round((advertisingStats.spend / advertisingStats.sales) * 100);
 
   return (
-    <Layout title="Inventory Overview">
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <div>
@@ -226,6 +226,5 @@ export default function Analytics() {
           </div>
         </section>
       </div>
-    </Layout>
   );
 }

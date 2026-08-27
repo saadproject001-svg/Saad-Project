@@ -38,7 +38,6 @@ export const sellerboardNav = [
       { to: "/inventory-tools/purchase-orders", label: "Purchase Orders" },
       { to: "/inventory-tools/reseller-workflow", label: "Reseller Workflow" },
       { to: "/inventory-tools/fba-shipments", label: "FBA Shipments" },
-      { to: "/suppliers", label: "Suppliers" },
     ],
   },
   {

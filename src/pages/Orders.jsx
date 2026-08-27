@@ -14,7 +14,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
-import Layout from "../components/Layout";
+import usePageTitle from "../hooks/usePageTitle";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
 import CarrierBadge from "../components/CarrierBadge";
@@ -49,6 +49,7 @@ const rowAction = (o) => {
 };
 
 export default function Orders() {
+  usePageTitle("Inventory Overview");
   const [activeTab, setActiveTab] = useState("all");
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState(null);
@@ -62,7 +63,6 @@ export default function Orders() {
   });
 
   return (
-    <Layout title="Inventory Overview">
       <div className="p-6 lg:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
           <div>
@@ -247,6 +247,5 @@ export default function Orders() {
           </div>
         </div>
       </div>
-    </Layout>
   );
 }

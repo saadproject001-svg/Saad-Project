@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Layers, FilePlus, Search, SlidersHorizontal } from "lucide-react";
-import Layout from "../components/Layout";
+import usePageTitle from "../hooks/usePageTitle";
 import StatCard from "../components/StatCard";
 import Pagination from "../components/Pagination";
 import { lowStockKpis, lowStockItems } from "../data/mockData";
 
 export default function LowStockAlert() {
+  usePageTitle("Inventory Overview");
   const [page, setPage] = useState(1);
   const critical = lowStockItems.filter((i) => i.severity === "critical").length;
   const warning = lowStockItems.filter((i) => i.severity === "warning").length;
 
   return (
-    <Layout title="Inventory Overview">
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
           <div>
@@ -135,6 +135,5 @@ export default function LowStockAlert() {
           </div>
         </div>
       </div>
-    </Layout>
   );
 }

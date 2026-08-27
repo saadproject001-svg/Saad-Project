@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Download, Plus, Warehouse as WarehouseIcon } from "lucide-react";
-import Layout from "../components/Layout";
+import usePageTitle from "../hooks/usePageTitle";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
 import CarrierBadge from "../components/CarrierBadge";
@@ -23,8 +23,8 @@ const capacityBarColor = (status) => {
 };
 
 export default function Warehouse() {
+  usePageTitle("Inventory Overview");
   return (
-    <Layout title="Inventory Overview">
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <div>
@@ -249,6 +249,5 @@ export default function Warehouse() {
           </div>
         </section>
       </div>
-    </Layout>
   );
 }
