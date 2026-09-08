@@ -6,7 +6,7 @@ const STYLES = {
 
 export default function FulfillmentBadge({ type, className = "" }) {
   if (!type) return null;
-  const style = STYLES[type] || "bg-slate-100 text-slate-600";
+  const style = STYLES[type] || "bg-neu-dark/15 text-neu-muted";
   return (
     <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold whitespace-nowrap ${style} ${className}`}>
       {type}

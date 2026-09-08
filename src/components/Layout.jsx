@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import ShaderBackground from "./ShaderBackground";
 
 // Rendered once at the app shell level (see App.jsx) so Sidebar and Header
 // persist across navigations — only the routed page content underneath
@@ -13,7 +14,8 @@ export default function Layout() {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-[#f8f8fa] text-[#253044] flex">
+    <div className="min-h-screen text-neu-text flex">
+      <ShaderBackground />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <main className="flex-1 min-w-0">
         <Header title={title} onMenuClick={() => setSidebarOpen(true)} />
@@ -28,7 +30,7 @@ export default function Layout() {
             <Outlet context={setTitle} />
           </motion.div>
         </AnimatePresence>
-        <footer className="text-center text-[10px] tracking-widest text-slate-400 py-10">
+        <footer className="text-center text-[10px] tracking-widest text-neu-muted py-10">
           © 2024 INVENTORY INSIGHTS PRO • ENTERPRISE EDITION
         </footer>
       </main>

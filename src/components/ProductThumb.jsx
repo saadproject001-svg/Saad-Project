@@ -5,7 +5,7 @@ export default function ProductThumb({ seed, size = 44, className = "" }) {
       alt=""
       width={size}
       height={size}
-      className={`rounded-lg object-cover shrink-0 bg-slate-100 ${className}`}
+      className={`rounded-xl object-cover shrink-0 neu-pressed-sm ${className}`}
       style={{ width: size, height: size }}
       loading="lazy"
     />

@@ -1,6 +1,19 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
+@theme {
+  --color-neu-bg: #e8ecf3;
+  --color-neu-light: #ffffff;
+  --color-neu-dark: #a3b1c6;
+  --color-accent: #2fae72;
+  --color-accent-2: #f2a65a;
+  --color-neu-text: #1c232e;
+  --color-neu-muted: #5c6478;
+  --color-success: #4caf7d;
+  --color-danger: #e57373;
+  --color-warning: #d9a441;
+}
+
 * ,
 body {
   font-family: "Inter", Arial, sans-serif;
@@ -8,9 +21,202 @@ body {
 
 body {
   margin: 0;
+  background: var(--color-neu-bg);
 }
 
 ::selection {
   background: #cbd5fb;
   color: #253044;
+}
+
+/* ---------------------------------------------------------------- */
+/* Ambient shader background — animated glow blobs + grain + vignette */
+/* Sits fixed behind the whole app; card surfaces stay fully opaque   */
+/* so the neumorphic shadow illusion is unaffected.                   */
+/* ---------------------------------------------------------------- */
+
+.neu-shader {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--color-neu-bg);
+}
+
+.neu-shader-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  will-change: transform;
+}
+
+.neu-shader-blob-a {
+  width: 46vw;
+  height: 46vw;
+  top: -14vw;
+  left: -10vw;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-accent) 55%, transparent) 0%, transparent 70%);
+  animation: neu-drift-a 28s ease-in-out infinite alternate;
+}
+
+.neu-shader-blob-b {
+  width: 40vw;
+  height: 40vw;
+  bottom: -16vw;
+  right: -8vw;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-accent-2) 55%, transparent) 0%, transparent 70%);
+  animation: neu-drift-b 34s ease-in-out infinite alternate;
+}
+
+.neu-shader-blob-c {
+  width: 30vw;
+  height: 30vw;
+  top: 30vh;
+  left: 45vw;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-neu-light) 70%, transparent) 0%, transparent 70%);
+  opacity: 0.6;
+  animation: neu-drift-c 40s ease-in-out infinite alternate;
+}
+
+@keyframes neu-drift-a {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(6vw, 5vw) scale(1.12); }
+}
+@keyframes neu-drift-b {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-6vw, -4vw) scale(1.08); }
+}
+@keyframes neu-drift-c {
+  0% { transform: translate(-4vw, -2vw) scale(1); }
+  100% { transform: translate(4vw, 3vw) scale(1.15); }
+}
+
+.neu-shader-grain {
+  position: absolute;
+  inset: -10%;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.neu-shader-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 60% at 50% -10%, color-mix(in srgb, var(--color-neu-light) 45%, transparent) 0%, transparent 55%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neu-shader-blob {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Neumorphism utilities                                            */
+/* ---------------------------------------------------------------- */
+
+.neu-raised {
+  background: var(--color-neu-bg);
+  box-shadow: 8px 8px 16px var(--color-neu-dark), -8px -8px 16px var(--color-neu-light);
+}
+
+.neu-soft {
+  background: var(--color-neu-bg);
+  box-shadow: 4px 4px 8px var(--color-neu-dark), -4px -4px 8px var(--color-neu-light);
+}
+
+.neu-pressed {
+  background: var(--color-neu-bg);
+  box-shadow: inset 6px 6px 12px var(--color-neu-dark), inset -6px -6px 12px var(--color-neu-light);
+}
+
+.neu-pressed-sm {
+  background: var(--color-neu-bg);
+  box-shadow: inset 3px 3px 6px var(--color-neu-dark), inset -3px -3px 6px var(--color-neu-light);
+}
+
+.neu-track {
+  background: var(--color-neu-bg);
+  box-shadow: inset 2px 2px 4px var(--color-neu-dark), inset -2px -2px 4px var(--color-neu-light);
+}
+
+.neu-flat {
+  background: var(--color-neu-bg);
+  box-shadow: none;
+}
+
+/* Cards */
+.neu-card {
+  background: var(--color-neu-bg);
+  box-shadow: 8px 8px 16px var(--color-neu-dark), -8px -8px 16px var(--color-neu-light);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.neu-card-hover:hover {
+  box-shadow: 10px 10px 22px var(--color-neu-dark), -10px -10px 22px var(--color-neu-light);
+  transform: translateY(-3px);
+}
+
+/* Buttons */
+.neu-btn {
+  background: var(--color-neu-bg);
+  box-shadow: 4px 4px 8px var(--color-neu-dark), -4px -4px 8px var(--color-neu-light);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.neu-btn:active {
+  box-shadow: inset 4px 4px 8px var(--color-neu-dark), inset -4px -4px 8px var(--color-neu-light);
+}
+
+.neu-icon-btn {
+  background: var(--color-neu-bg);
+  box-shadow: 4px 4px 8px var(--color-neu-dark), -4px -4px 8px var(--color-neu-light);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.neu-icon-btn:active {
+  box-shadow: inset 3px 3px 6px var(--color-neu-dark), inset -3px -3px 6px var(--color-neu-light);
+}
+
+.neu-btn-accent {
+  background: var(--color-accent);
+  box-shadow: 6px 6px 14px var(--color-neu-dark), -6px -6px 14px var(--color-neu-light);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.neu-btn-accent:active {
+  box-shadow: inset 4px 4px 10px #1f7a4f, inset -4px -4px 10px #55c98f;
+}
+
+.neu-btn-accent2 {
+  background: var(--color-accent-2);
+  box-shadow: 6px 6px 14px var(--color-neu-dark), -6px -6px 14px var(--color-neu-light);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.neu-btn-accent2:active {
+  box-shadow: inset 4px 4px 10px #c07f3a, inset -4px -4px 10px #ffcf94;
+}
+
+/* Inputs / search / selects */
+.neu-input {
+  background: var(--color-neu-bg);
+  box-shadow: inset 4px 4px 8px var(--color-neu-dark), inset -4px -4px 8px var(--color-neu-light);
+  transition: box-shadow 0.2s ease;
+}
+.neu-input:focus-within,
+.neu-input:focus {
+  outline: none;
+  box-shadow: inset 5px 5px 10px var(--color-neu-dark), inset -5px -5px 10px var(--color-neu-light);
+}
+
+/* Sidebar / nav items */
+.neu-nav-item {
+  background: transparent;
+  transition: box-shadow 0.2s ease, color 0.2s ease;
+}
+.neu-nav-item:hover {
+  box-shadow: 4px 4px 8px var(--color-neu-dark), -4px -4px 8px var(--color-neu-light);
+}
+.neu-nav-item-active {
+  background: var(--color-neu-bg);
+  box-shadow: inset 4px 4px 8px var(--color-neu-dark), inset -4px -4px 8px var(--color-neu-light);
+  color: var(--color-accent);
 }

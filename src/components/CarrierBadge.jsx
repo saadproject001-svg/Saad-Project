@@ -10,7 +10,7 @@ const CARRIERS = {
 
 export default function CarrierBadge({ carrier, className = "" }) {
   if (!carrier) return null;
-  const { icon: Icon, style } = CARRIERS[carrier] || { icon: Truck, style: "bg-slate-100 text-slate-600" };
+  const { icon: Icon, style } = CARRIERS[carrier] || { icon: Truck, style: "bg-neu-dark/15 text-neu-muted" };
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold whitespace-nowrap ${style} ${className}`}>
       <Icon className="w-3 h-3" />

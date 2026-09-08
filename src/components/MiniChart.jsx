@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 
-export function BarChart({ data, labels, className = "bg-indigo-400" }) {
+export function BarChart({ data, labels, className = "bg-accent" }) {
   return (
     <div>
-      <div className="h-[200px] flex items-end gap-2 px-1 border-b border-slate-100">
+      <div className="h-[200px] flex items-end gap-2 px-1">
         {data.map((h, i) => (
           <motion.div
             key={i}
@@ -15,7 +15,7 @@ export function BarChart({ data, labels, className = "bg-indigo-400" }) {
         ))}
       </div>
       {labels && (
-        <div className="flex justify-between text-[10px] text-slate-400 mt-3">
+        <div className="flex justify-between text-[10px] text-neu-muted mt-3">
           {labels.map((l) => (
             <span key={l}>{l}</span>
           ))}
@@ -32,7 +32,7 @@ export function LineChart({ path, height = 160 }) {
         d={path}
         fill="none"
         strokeWidth="3"
-        className="stroke-indigo-500"
+        className="stroke-accent"
         strokeLinecap="round"
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}

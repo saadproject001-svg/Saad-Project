@@ -23,15 +23,15 @@ export const stockByCategory = [
 ];
 
 export const quantityBySupplier = [
-  { name: "Global Logistics Co.", value: 12400, pct: 85, color: "bg-indigo-500" },
-  { name: "Prime Parts Inc.", value: 9100, pct: 65, color: "bg-indigo-300" },
-  { name: "Direct Supply Ltd.", value: 4200, pct: 38, color: "bg-indigo-100" },
+  { name: "Global Logistics Co.", value: 12400, pct: 85, color: "bg-accent" },
+  { name: "Prime Parts Inc.", value: 9100, pct: 65, color: "bg-accent/60" },
+  { name: "Direct Supply Ltd.", value: 4200, pct: 38, color: "bg-accent/25" },
 ];
 
 export const stockMovementType = [
-  { name: "Incoming", pct: 62, color: "bg-indigo-500" },
-  { name: "Outgoing", pct: 28, color: "bg-indigo-300" },
-  { name: "Internal", pct: 10, color: "bg-slate-200" },
+  { name: "Incoming", pct: 62, color: "bg-accent" },
+  { name: "Outgoing", pct: 28, color: "bg-accent-2" },
+  { name: "Internal", pct: 10, color: "bg-neu-dark/40" },
 ];
 
 export const topProducts = [
@@ -208,11 +208,11 @@ export const supplierKpis = [
 ];
 
 export const suppliers = [
-  { id: "SUP-1028", name: "Global Logistics Co.", icon: "Truck", iconBg: "bg-indigo-50 text-indigo-600", contact: "John Smith", email: "john@global.com", phone: "+1-555-0101", country: "USA", products: 156, orders: 28, purchaseValue: "$1.2M", outstanding: "$45K", leadTime: "14 days", rating: 4.8, lastOrder: "Jan 15, 2024", status: "Active" },
-  { id: "SUP-1016", name: "Prime Parts Inc.", icon: "Boxes", iconBg: "bg-violet-50 text-indigo-500", contact: "Sarah Johnson", email: "sarah@primeparts.com", phone: "+1-555-0102", country: "Canada", products: 98, orders: 15, purchaseValue: "$680K", outstanding: "$32K", leadTime: "10 days", rating: 4.6, lastOrder: "Jan 12, 2024", status: "Active" },
-  { id: "SUP-0994", name: "Direct Supply Ltd.", icon: "Package", iconBg: "bg-slate-100 text-slate-500", contact: "Mike Chen", email: "mike@directsupply.co.uk", phone: "+44-20-7946", country: "UK", products: 76, orders: 12, purchaseValue: "$420K", outstanding: "$18K", leadTime: "16 days", rating: 4.4, lastOrder: "Jan 08, 2024", status: "Active" },
-  { id: "SUP-1041", name: "TechSource International", icon: "Cpu", iconBg: "bg-amber-50 text-amber-600", contact: "Alex Rodriguez", email: "alex@techsource.de", phone: "+49-89-1234", country: "Germany", products: 143, orders: 31, purchaseValue: "$950K", outstanding: "$68K", leadTime: "12 days", rating: 4.7, lastOrder: "Jan 14, 2024", status: "Pending" },
-  { id: "SUP-0972", name: "Alpha Distribution", icon: "Globe2", iconBg: "bg-emerald-50 text-emerald-600", contact: "Lisa Wong", email: "lisa@alphadist.sg", phone: "+65-6789-0123", country: "Singapore", products: 87, orders: 9, purchaseValue: "$320K", outstanding: "$12K", leadTime: "18 days", rating: 4.3, lastOrder: "Jan 10, 2024", status: "Active" },
+  { id: "SUP-1028", name: "Global Logistics Co.", icon: "Truck", iconBg: "bg-accent/15 text-accent", contact: "John Smith", email: "john@global.com", phone: "+1-555-0101", country: "USA", products: 156, orders: 28, purchaseValue: "$1.2M", outstanding: "$45K", leadTime: "14 days", rating: 4.8, lastOrder: "Jan 15, 2024", status: "Active" },
+  { id: "SUP-1016", name: "Prime Parts Inc.", icon: "Boxes", iconBg: "bg-accent-2/15 text-accent-2", contact: "Sarah Johnson", email: "sarah@primeparts.com", phone: "+1-555-0102", country: "Canada", products: 98, orders: 15, purchaseValue: "$680K", outstanding: "$32K", leadTime: "10 days", rating: 4.6, lastOrder: "Jan 12, 2024", status: "Active" },
+  { id: "SUP-0994", name: "Direct Supply Ltd.", icon: "Package", iconBg: "bg-neu-dark/15 text-neu-muted", contact: "Mike Chen", email: "mike@directsupply.co.uk", phone: "+44-20-7946", country: "UK", products: 76, orders: 12, purchaseValue: "$420K", outstanding: "$18K", leadTime: "16 days", rating: 4.4, lastOrder: "Jan 08, 2024", status: "Active" },
+  { id: "SUP-1041", name: "TechSource International", icon: "Cpu", iconBg: "bg-warning/15 text-warning", contact: "Alex Rodriguez", email: "alex@techsource.de", phone: "+49-89-1234", country: "Germany", products: 143, orders: 31, purchaseValue: "$950K", outstanding: "$68K", leadTime: "12 days", rating: 4.7, lastOrder: "Jan 14, 2024", status: "Pending" },
+  { id: "SUP-0972", name: "Alpha Distribution", icon: "Globe2", iconBg: "bg-success/15 text-success", contact: "Lisa Wong", email: "lisa@alphadist.sg", phone: "+65-6789-0123", country: "Singapore", products: 87, orders: 9, purchaseValue: "$320K", outstanding: "$12K", leadTime: "18 days", rating: 4.3, lastOrder: "Jan 10, 2024", status: "Active" },
 ];
 
 export const warehouseKpis = [
@@ -235,9 +235,9 @@ export const warehouses = [
 ];
 
 export const fulfillmentSplit = [
-  { name: "FBA", pct: 58, color: "bg-orange-500" },
-  { name: "FBM", pct: 30, color: "bg-blue-400" },
-  { name: "SFP", pct: 12, color: "bg-violet-300" },
+  { name: "FBA", pct: 58, color: "bg-accent" },
+  { name: "FBM", pct: 30, color: "bg-accent-2" },
+  { name: "SFP", pct: 12, color: "bg-accent/40" },
 ];
 
 export const incomingShipments = [

@@ -27,16 +27,16 @@ import { products, inventoryKpis } from "../data/mockData";
 
 const ICONS = { Smartphone, Laptop, Armchair, Router, Monitor };
 const ICON_BG = {
-  Electronics: "bg-indigo-50 text-indigo-500",
-  Furniture: "bg-amber-50 text-amber-600",
-  "Home Appliances": "bg-rose-50 text-rose-500",
+  Electronics: "bg-accent/15 text-accent",
+  Furniture: "bg-warning/15 text-warning",
+  "Home Appliances": "bg-danger/15 text-danger",
 };
 const TONE_TEXT = {
-  emerald: "text-emerald-600",
-  rose: "text-rose-500",
-  amber: "text-amber-600",
-  indigo: "text-indigo-600",
-  slate: "text-slate-500",
+  emerald: "text-success",
+  rose: "text-danger",
+  amber: "text-warning",
+  indigo: "text-accent",
+  slate: "text-neu-muted",
 };
 
 export default function Inventory() {
@@ -55,22 +55,22 @@ export default function Inventory() {
   return (
       <div className="p-5 md:p-8">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-          <div>
-            <div className="text-xs uppercase tracking-wider text-slate-400 mb-1">Operations / Catalog</div>
-            <h2 className="text-xl font-bold tracking-tight">Inventory</h2>
-            <p className="text-sm text-slate-500 mt-1">Manage products, stock levels, warehouse locations and valuation.</p>
+          <div className="min-w-0 max-w-xl">
+            <div className="text-xs uppercase tracking-wider text-neu-muted mb-1">Operations / Catalog</div>
+            <h2 className="text-xl font-bold tracking-tight text-neu-text">Inventory</h2>
+            <p className="text-sm text-neu-muted mt-1">Manage products, stock levels, warehouse locations and valuation.</p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <button className="h-10 px-4 rounded-lg bg-[#6366ed] text-white text-sm font-semibold flex items-center gap-2 hover:bg-indigo-700">
+          <div className="flex flex-wrap shrink-0 gap-2">
+            <button className="neu-btn-accent h-10 px-4 rounded-xl text-white text-sm font-semibold flex items-center gap-2">
               <Plus className="w-4 h-4" />Add Product
             </button>
-            <button className="h-10 px-4 rounded-lg bg-white border border-slate-200 text-sm font-medium flex items-center gap-2 hover:bg-slate-50">
+            <button className="neu-btn h-10 px-4 rounded-xl text-sm font-medium text-neu-muted hover:text-neu-text flex items-center gap-2">
               <Upload className="w-4 h-4" />Import
             </button>
-            <button className="h-10 px-4 rounded-lg bg-white border border-slate-200 text-sm font-medium flex items-center gap-2 hover:bg-slate-50">
+            <button className="neu-btn h-10 px-4 rounded-xl text-sm font-medium text-neu-muted hover:text-neu-text flex items-center gap-2">
               <Download className="w-4 h-4" />Export
             </button>
-            <button className="h-10 px-4 rounded-lg bg-white border border-slate-200 text-sm font-medium flex items-center gap-2 hover:bg-slate-50">
+            <button className="neu-btn h-10 px-4 rounded-xl text-sm font-medium text-neu-muted hover:text-neu-text flex items-center gap-2">
               <ScanLine className="w-4 h-4" />Scan Barcode
             </button>
           </div>
@@ -88,10 +88,10 @@ export default function Inventory() {
               >
                 <Link
                   to="/inventory/alerts"
-                  className="block bg-white rounded-xl shadow-[0_3px_12px_rgba(30,41,59,.07)] hover:shadow-[0_10px_28px_rgba(30,41,59,.14)] transition-shadow p-4"
+                  className="block neu-card neu-card-hover rounded-2xl p-4"
                 >
-                  <div className="text-[10px] uppercase tracking-wider text-slate-500">{k.label}</div>
-                  <div className="text-2xl font-bold mt-2">{k.value}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-neu-muted leading-tight min-h-[24px] flex items-center">{k.label}</div>
+                  <div className="text-2xl font-bold mt-2 text-neu-text">{k.value}</div>
                   <div className={`text-xs mt-1 ${TONE_TEXT[k.tone]}`}>{k.delta}</div>
                 </Link>
               </motion.div>
@@ -102,69 +102,69 @@ export default function Inventory() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.05 }}
                 whileHover={{ y: -4 }}
-                className="bg-white rounded-xl shadow-[0_3px_12px_rgba(30,41,59,.07)] hover:shadow-[0_10px_28px_rgba(30,41,59,.14)] transition-shadow p-4"
+                className="neu-card neu-card-hover rounded-2xl p-4"
               >
-                <div className="text-[10px] uppercase tracking-wider text-slate-500">{k.label}</div>
-                <div className="text-2xl font-bold mt-2">{k.value}</div>
+                <div className="text-[10px] uppercase tracking-wider text-neu-muted leading-tight min-h-[24px] flex items-center">{k.label}</div>
+                <div className="text-2xl font-bold mt-2 text-neu-text">{k.value}</div>
                 <div className={`text-xs mt-1 ${TONE_TEXT[k.tone]}`}>{k.delta}</div>
               </motion.div>
             )
           )}
         </section>
 
-        <section className="bg-white rounded-xl shadow-[0_3px_12px_rgba(30,41,59,.07)] p-4 md:p-5 mb-5">
+        <section className="neu-card rounded-2xl p-4 md:p-5 mb-5">
           <div className="flex flex-col xl:flex-row gap-3 justify-between">
             <div className="flex flex-col sm:flex-row gap-3 flex-1">
-              <div className="h-10 w-full sm:max-w-sm bg-[#f8f9fb] rounded-lg flex items-center px-3 gap-2 text-sm text-slate-500">
+              <div className="neu-input h-10 w-full sm:max-w-sm rounded-xl flex items-center px-3 gap-2 text-sm text-neu-muted">
                 <Search className="w-[18px] h-[18px]" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="bg-transparent outline-none w-full placeholder:text-slate-400"
+                  className="bg-transparent outline-none w-full placeholder:text-neu-muted text-neu-text"
                   placeholder="Search products, SKU or ID..."
                 />
               </div>
-              <button className="h-10 px-3 rounded-lg border border-slate-200 text-sm font-medium flex items-center gap-2 bg-white">
+              <button className="neu-btn h-10 px-3 rounded-xl text-sm font-medium text-neu-muted hover:text-neu-text flex items-center gap-2">
                 <SlidersHorizontal className="w-4 h-4" />Filters
               </button>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-slate-400">Showing</span>
-              <select className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none">
+              <span className="text-neu-muted">Showing</span>
+              <select className="neu-input h-10 rounded-xl px-3 text-sm text-neu-text outline-none">
                 <option>25 rows</option>
                 <option>50 rows</option>
                 <option>100 rows</option>
               </select>
-              <button className="h-10 px-3 rounded-lg border border-slate-200 text-sm font-medium flex items-center gap-2">
+              <button className="neu-btn h-10 px-3 rounded-xl text-sm font-medium text-neu-muted hover:text-neu-text flex items-center gap-2">
                 <Layers className="w-4 h-4" />Bulk actions<ChevronDown className="w-4 h-4" />
               </button>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-4">
-            <span className="rounded-full bg-slate-50 text-slate-600 px-3 py-1.5 text-xs flex items-center">Category: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
-            <span className="rounded-full bg-slate-50 text-slate-600 px-3 py-1.5 text-xs flex items-center">Warehouse: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
-            <span className="rounded-full bg-slate-50 text-slate-600 px-3 py-1.5 text-xs flex items-center">Fulfillment: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
-            <span className="rounded-full bg-slate-50 text-slate-600 px-3 py-1.5 text-xs flex items-center">Status: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
+            <span className="rounded-full neu-soft text-neu-muted px-3 py-1.5 text-xs flex items-center">Category: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
+            <span className="rounded-full neu-soft text-neu-muted px-3 py-1.5 text-xs flex items-center">Warehouse: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
+            <span className="rounded-full neu-soft text-neu-muted px-3 py-1.5 text-xs flex items-center">Fulfillment: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
+            <span className="rounded-full neu-soft text-neu-muted px-3 py-1.5 text-xs flex items-center">Status: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
           </div>
         </section>
 
-        <section className="bg-white rounded-xl shadow-[0_3px_12px_rgba(30,41,59,.07)] overflow-hidden">
-          <div className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100">
+        <section className="neu-card rounded-2xl overflow-hidden">
+          <div className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-semibold">Product inventory</h3>
-              <p className="text-xs text-slate-400 mt-1">{products.length} products shown across active warehouses</p>
+              <h3 className="text-sm font-semibold text-neu-text">Product inventory</h3>
+              <p className="text-xs text-neu-muted mt-1">{products.length} products shown across active warehouses</p>
             </div>
-            <div className="flex items-center gap-3 text-xs text-slate-500">
-              <span><i className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1" />Optimal</span>
-              <span><i className="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1" />Low</span>
-              <span><i className="inline-block w-2 h-2 rounded-full bg-rose-500 mr-1" />Out</span>
+            <div className="flex items-center gap-3 text-xs text-neu-muted">
+              <span><i className="inline-block w-2 h-2 rounded-full bg-success mr-1" />Optimal</span>
+              <span><i className="inline-block w-2 h-2 rounded-full bg-warning mr-1" />Low</span>
+              <span><i className="inline-block w-2 h-2 rounded-full bg-danger mr-1" />Out</span>
             </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1450px] text-xs">
-              <thead className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400">
+              <thead className="text-[10px] uppercase tracking-wider text-neu-muted">
                 <tr>
-                  <th className="text-left px-5 py-4"><input type="checkbox" className="accent-indigo-600" /></th>
+                  <th className="text-left px-5 py-4"><input type="checkbox" className="accent-[#2FAE72]" /></th>
                   <th className="text-left">Product</th>
                   <th className="text-left">SKU</th>
                   <th className="text-left">Product ID</th>
@@ -195,36 +195,36 @@ export default function Inventory() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.25, delay: i * 0.04 }}
-                        className={`hover:bg-slate-50 ${i < filtered.length - 1 ? "border-b border-slate-100" : ""}`}
+                        className="hover:bg-black/[0.03] transition-colors"
                       >
-                        <td className="px-5 py-4"><input type="checkbox" className="accent-indigo-600" /></td>
+                        <td className="px-5 py-4"><input type="checkbox" className="accent-[#2FAE72]" /></td>
                         <td className="font-semibold">
                           <Link to={`/inventory/${p.id}`} className="flex items-center gap-3">
-                            <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${ICON_BG[p.category] || "bg-indigo-50 text-indigo-500"}`}>
+                            <span className={`w-8 h-8 rounded-xl flex items-center justify-center ${ICON_BG[p.category] || "bg-accent/15 text-accent"}`}>
                               <Icon className="w-4 h-4" />
                             </span>
-                            <span>{p.name}</span>
+                            <span className="text-neu-text">{p.name}</span>
                           </Link>
                         </td>
-                        <td className="text-slate-500">{p.productId}</td>
-                        <td className="text-slate-400">#{p.sku}</td>
-                        <td>{p.category}</td>
+                        <td className="text-neu-muted">{p.productId}</td>
+                        <td className="text-neu-muted">#{p.sku}</td>
+                        <td className="text-neu-text">{p.category}</td>
                         <td><FulfillmentBadge type={p.fulfillmentType} /></td>
-                        <td>{p.warehouse}</td>
-                        <td className="text-slate-500">{p.location}</td>
-                        <td className="text-right font-semibold">{p.stock.toLocaleString()}</td>
-                        <td className="text-right">{p.reserved.toLocaleString()}</td>
-                        <td className="text-right font-semibold">{p.available.toLocaleString()}</td>
-                        <td className="text-right">{p.reorderPoint.toLocaleString()}</td>
-                        <td className="text-right">${p.unitCost.toLocaleString()}</td>
-                        <td className="text-right font-semibold">${p.totalValue.toLocaleString()}</td>
+                        <td className="text-neu-text">{p.warehouse}</td>
+                        <td className="text-neu-muted">{p.location}</td>
+                        <td className="text-right font-semibold text-neu-text">{p.stock.toLocaleString()}</td>
+                        <td className="text-right text-neu-text">{p.reserved.toLocaleString()}</td>
+                        <td className="text-right font-semibold text-neu-text">{p.available.toLocaleString()}</td>
+                        <td className="text-right text-neu-text">{p.reorderPoint.toLocaleString()}</td>
+                        <td className="text-right text-neu-text">${p.unitCost.toLocaleString()}</td>
+                        <td className="text-right font-semibold text-neu-text">${p.totalValue.toLocaleString()}</td>
                         <td><StatusBadge status={p.status} /></td>
-                        <td className="text-slate-500">{p.lastUpdated}</td>
+                        <td className="text-neu-muted">{p.lastUpdated}</td>
                         <td className="text-right">
                           <div className="flex justify-end">
-                            <Link to={`/inventory/${p.id}`} className="p-2 text-slate-400 hover:text-indigo-600"><Eye className="w-4 h-4" /></Link>
-                            <button className="p-2 text-slate-400 hover:text-indigo-600"><Edit3 className="w-4 h-4" /></button>
-                            <button className="p-2 text-slate-400 hover:text-slate-700"><MoreHorizontal className="w-4 h-4" /></button>
+                            <Link to={`/inventory/${p.id}`} className="p-2 text-neu-muted hover:text-accent"><Eye className="w-4 h-4" /></Link>
+                            <button className="p-2 text-neu-muted hover:text-accent"><Edit3 className="w-4 h-4" /></button>
+                            <button className="p-2 text-neu-muted hover:text-neu-text"><MoreHorizontal className="w-4 h-4" /></button>
                           </div>
                         </td>
                       </motion.tr>
@@ -234,8 +234,8 @@ export default function Inventory() {
               </tbody>
             </table>
           </div>
-          <div className="px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-            <span>Showing <b className="text-[#253044]">1–{filtered.length}</b> of <b className="text-[#253044]">2,486</b> products</span>
+          <div className="px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neu-muted">
+            <span>Showing <b className="text-neu-text">1–{filtered.length}</b> of <b className="text-neu-text">2,486</b> products</span>
             <Pagination page={page} totalPages={498} onPageChange={setPage} />
           </div>
         </section>
