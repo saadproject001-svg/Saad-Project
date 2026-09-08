@@ -3,16 +3,38 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import { sellerboardNav } from "./data/sellerboardData";
 
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Inventory = lazy(() => import("./pages/Inventory"));
-const ProductDetails = lazy(() => import("./pages/ProductDetails"));
-const LowStockAlert = lazy(() => import("./pages/LowStockAlert"));
-const Suppliers = lazy(() => import("./pages/Suppliers"));
-const Warehouse = lazy(() => import("./pages/Warehouse"));
-const Orders = lazy(() => import("./pages/Orders"));
-const Analytics = lazy(() => import("./pages/Analytics"));
-const Settings = lazy(() => import("./pages/Settings"));
-const SellerboardPage = lazy(() => import("./pages/SellerboardPage"));
+// A new deploy changes the hashed chunk filenames. If a tab was left open
+// across a deploy, its in-memory bundle still references the old (now
+// missing) chunk URLs, so a lazy import 404s and the route renders blank.
+// Reload once to pick up the fresh bundle instead of leaving a dead page.
+function lazyWithReload(factory) {
+  return lazy(() =>
+    factory()
+      .then((mod) => {
+        sessionStorage.removeItem("chunk-reload-attempted");
+        return mod;
+      })
+      .catch((error) => {
+        if (!sessionStorage.getItem("chunk-reload-attempted")) {
+          sessionStorage.setItem("chunk-reload-attempted", "1");
+          window.location.reload();
+          return new Promise(() => {});
+        }
+        throw error;
+      })
+  );
+}
+
+const Dashboard = lazyWithReload(() => import("./pages/Dashboard"));
+const Inventory = lazyWithReload(() => import("./pages/Inventory"));
+const ProductDetails = lazyWithReload(() => import("./pages/ProductDetails"));
+const LowStockAlert = lazyWithReload(() => import("./pages/LowStockAlert"));
+const Suppliers = lazyWithReload(() => import("./pages/Suppliers"));
+const Warehouse = lazyWithReload(() => import("./pages/Warehouse"));
+const Orders = lazyWithReload(() => import("./pages/Orders"));
+const Analytics = lazyWithReload(() => import("./pages/Analytics"));
+const Settings = lazyWithReload(() => import("./pages/Settings"));
+const SellerboardPage = lazyWithReload(() => import("./pages/SellerboardPage"));
 
 const sellerboardRoutes = sellerboardNav.flatMap((group) => group.items.map((item) => item.to));
 
