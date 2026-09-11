@@ -1,0 +1,61 @@
+const STYLES = {
+  Optimal: "bg-success/15 text-success",
+  Active: "bg-success/15 text-success",
+  Approved: "bg-success/15 text-success",
+  Paid: "bg-success/15 text-success",
+  Delivered: "bg-success/15 text-success",
+  Refunded: "bg-success/15 text-success",
+  Shipped: "bg-accent/15 text-accent",
+  Packed: "bg-accent/15 text-accent",
+  "In Transit": "bg-accent/15 text-accent",
+  Processing: "bg-warning/15 text-warning",
+  Pending: "bg-warning/15 text-warning",
+  Requested: "bg-warning/15 text-warning",
+  Preparing: "bg-warning/15 text-warning",
+  "Low Stock": "bg-warning/15 text-warning",
+  Monitor: "bg-warning/15 text-warning",
+  "Near Full": "bg-warning/15 text-warning",
+  Watch: "bg-warning/15 text-warning",
+  Overstock: "bg-accent-2/15 text-accent-2",
+  "Out of Stock": "bg-danger/15 text-danger",
+  Failed: "bg-danger/15 text-danger",
+  Cancelled: "bg-danger/15 text-danger",
+  Rejected: "bg-danger/15 text-danger",
+  "On Hold": "bg-neu-dark/15 text-neu-muted",
+  Inactive: "bg-neu-dark/15 text-neu-muted",
+  Maintenance: "bg-neu-dark/15 text-neu-muted",
+  "N/A": "bg-neu-dark/15 text-neu-muted",
+  Resolved: "bg-success/15 text-success",
+  Reimbursed: "bg-success/15 text-success",
+  Enabled: "bg-success/15 text-success",
+  Connected: "bg-success/15 text-success",
+  Sent: "bg-success/15 text-success",
+  Open: "bg-warning/15 text-warning",
+  Scheduled: "bg-accent/15 text-accent",
+  Investigating: "bg-warning/15 text-warning",
+  Denied: "bg-danger/15 text-danger",
+  Disabled: "bg-neu-dark/15 text-neu-muted",
+  Draft: "bg-neu-dark/15 text-neu-muted",
+  Efficient: "bg-success/15 text-success",
+  Wasteful: "bg-danger/15 text-danger",
+  Recommended: "bg-success/15 text-success",
+  VIP: "bg-accent/15 text-accent",
+  "Reorder Now": "bg-danger/15 text-danger",
+  "On Track": "bg-success/15 text-success",
+  Overstocked: "bg-accent-2/15 text-accent-2",
+  Compliant: "bg-success/15 text-success",
+  Violation: "bg-danger/15 text-danger",
+  Critical: "bg-danger/15 text-danger",
+  Warning: "bg-warning/15 text-warning",
+  Info: "bg-accent-2/15 text-accent-2",
+  Posted: "bg-success/15 text-success",
+};
+
+export default function StatusBadge({ status, className = "" }) {
+  const style = STYLES[status] || "bg-neu-dark/15 text-neu-muted";
+  return (
+    <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold whitespace-nowrap ${style} ${className}`}>
+      {status}
+    </span>
+  );
+}
