@@ -1,31 +1,33 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Upload, Download, SlidersHorizontal, Search, ListFilter, Globe2, Columns3, Eye, Pencil, Mail } from "lucide-react";
+import {
+  Plus,
+  Upload,
+  Download,
+  SlidersHorizontal,
+  Search,
+  ListFilter,
+  Globe2,
+  Columns3,
+  Truck,
+  Boxes,
+  Package,
+  Cpu,
+  Eye,
+  Pencil,
+  Mail,
+} from "lucide-react";
 import usePageTitle from "../hooks/usePageTitle";
-import { useApi } from "../hooks/useApi";
-import { listSuppliers } from "../lib/endpoints";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
-import LoadingState from "../components/LoadingState";
-import ErrorState from "../components/ErrorState";
+import Pagination from "../components/Pagination";
+import { suppliers, supplierKpis } from "../data/mockData";
 
-const ICON_BG = ["bg-accent/15 text-accent", "bg-warning/15 text-warning", "bg-success/15 text-success", "bg-danger/15 text-danger"];
+const ICONS = { Truck, Boxes, Package, Cpu, Globe2 };
 
 export default function Suppliers() {
   usePageTitle("Inventory Overview");
-  const { data: suppliers, loading, error, refetch } = useApi(listSuppliers, []);
-
-  if (loading) return <div className="p-4 sm:p-6 lg:p-8"><LoadingState label="Loading suppliers..." /></div>;
-  if (error) return <div className="p-4 sm:p-6 lg:p-8"><ErrorState error={error} onRetry={refetch} /></div>;
-
-  const totalPurchaseValue = suppliers.reduce((sum, s) => sum + Number(s.purchase_value), 0);
-  const avgLeadTime = suppliers.length ? Math.round(suppliers.reduce((sum, s) => sum + s.lead_time_days, 0) / suppliers.length) : 0;
-  const active = suppliers.filter((s) => s.status === "Active").length;
-  const kpis = [
-    { label: "Total Suppliers", value: String(suppliers.length) },
-    { label: "Active Suppliers", value: String(active) },
-    { label: "Total Purchase Value", value: `$${totalPurchaseValue.toLocaleString()}` },
-    { label: "Avg. Lead Time", value: `${avgLeadTime} days` },
-  ];
+  const [page, setPage] = useState(1);
 
   return (
       <div className="p-4 sm:p-6 lg:p-8">
@@ -51,8 +53,8 @@ export default function Suppliers() {
           </div>
         </div>
 
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-6">
-          {kpis.map((k, i) => (
+        <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5 mb-6">
+          {supplierKpis.map((k, i) => (
             <StatCard key={k.label} {...k} index={i} />
           ))}
         </section>
@@ -77,11 +79,12 @@ export default function Suppliers() {
             </div>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-xs min-w-[1150px]">
+            <table className="w-full text-xs min-w-[1250px]">
               <thead className="text-[10px] tracking-wider text-neu-muted">
                 <tr>
                   <th className="text-left px-5 py-4 w-10"><input type="checkbox" className="accent-[#2FAE72]" /></th>
-                  <th className="text-left py-4">SUPPLIER NAME</th>
+                  <th className="text-left py-4">SUPPLIER ID</th>
+                  <th className="text-left">SUPPLIER NAME</th>
                   <th className="text-left">CONTACT PERSON</th>
                   <th className="text-left">EMAIL</th>
                   <th className="text-left">PHONE</th>
@@ -89,54 +92,61 @@ export default function Suppliers() {
                   <th className="text-left">PRODUCTS</th>
                   <th className="text-left">ORDERS</th>
                   <th className="text-left">PURCHASE VALUE</th>
+                  <th className="text-left">OUTSTANDING</th>
                   <th className="text-left">LEAD TIME</th>
                   <th className="text-left">RATING</th>
+                  <th className="text-left">LAST ORDER</th>
                   <th className="text-left">STATUS</th>
                   <th className="text-left pr-5">ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
-                {suppliers.map((s, i) => (
-                  <motion.tr
-                    key={s.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: i * 0.06 }}
-                    className="hover:bg-black/[0.03] transition-colors"
-                  >
-                    <td className="px-5 py-5"><input type="checkbox" className="accent-[#2FAE72]" /></td>
-                    <td className="font-semibold">
-                      <div className="flex items-center gap-3">
-                        <motion.div whileHover={{ scale: 1.1 }} className={`w-8 h-8 rounded-xl flex items-center justify-center text-base ${ICON_BG[i % ICON_BG.length]}`}>
-                          {s.icon || "🚚"}
-                        </motion.div>
-                        <span className="text-neu-text">{s.name}</span>
-                      </div>
-                    </td>
-                    <td className="text-neu-text">{s.contact_name ?? "—"}</td>
-                    <td className="text-neu-muted">{s.email ?? "—"}</td>
-                    <td className="text-neu-muted">{s.phone ?? "—"}</td>
-                    <td className="text-neu-text">{s.country ?? "—"}</td>
-                    <td className="font-semibold text-neu-text">{s.product_count}</td>
-                    <td className="text-neu-text">{s.order_count}</td>
-                    <td className="font-semibold text-neu-text">${Number(s.purchase_value).toLocaleString()}</td>
-                    <td className="text-neu-text">{s.lead_time_days}d</td>
-                    <td><span className="text-warning">★</span> <b className="text-neu-text">{s.rating}</b></td>
-                    <td><StatusBadge status={s.status} /></td>
-                    <td className="pr-5">
-                      <div className="flex items-center gap-3 text-neu-muted">
-                        <button className="hover:text-accent"><Eye className="w-4 h-4" /></button>
-                        <button className="hover:text-accent"><Pencil className="w-4 h-4" /></button>
-                        <button className="hover:text-accent"><Mail className="w-4 h-4" /></button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
+                {suppliers.map((s, i) => {
+                  const Icon = ICONS[s.icon] || Truck;
+                  return (
+                    <motion.tr
+                      key={s.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3, delay: i * 0.06 }}
+                      className="hover:bg-black/[0.03] transition-colors"
+                    >
+                      <td className="px-5 py-5"><input type="checkbox" className="accent-[#2FAE72]" /></td>
+                      <td className="text-neu-muted">#{s.id}</td>
+                      <td className="font-semibold">
+                        <div className="flex items-center gap-3">
+                          <motion.div whileHover={{ scale: 1.1 }} className={`w-8 h-8 rounded-xl flex items-center justify-center ${s.iconBg}`}><Icon className="w-4 h-4" /></motion.div>
+                          <span className="text-neu-text">{s.name}</span>
+                        </div>
+                      </td>
+                      <td className="text-neu-text">{s.contact}</td>
+                      <td className="text-neu-muted">{s.email}</td>
+                      <td className="text-neu-muted">{s.phone}</td>
+                      <td className="text-neu-text">{s.country}</td>
+                      <td className="font-semibold text-neu-text">{s.products}</td>
+                      <td className="text-neu-text">{s.orders}</td>
+                      <td className="font-semibold text-neu-text">{s.purchaseValue}</td>
+                      <td className="text-neu-text">{s.outstanding}</td>
+                      <td className="text-neu-text">{s.leadTime}</td>
+                      <td><span className="text-warning">★</span> <b className="text-neu-text">{s.rating}</b></td>
+                      <td className="text-neu-muted">{s.lastOrder}</td>
+                      <td><StatusBadge status={s.status} /></td>
+                      <td className="pr-5">
+                        <div className="flex items-center gap-3 text-neu-muted">
+                          <button className="hover:text-accent"><Eye className="w-4 h-4" /></button>
+                          <button className="hover:text-accent"><Pencil className="w-4 h-4" /></button>
+                          <button className="hover:text-accent"><Mail className="w-4 h-4" /></button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-          <div className="px-5 py-4 text-xs text-neu-muted">
-            Showing <b className="text-neu-text">{suppliers.length}</b> of <b className="text-neu-text">{suppliers.length}</b> suppliers
+          <div className="px-5 py-4 flex items-center justify-between flex-wrap gap-3">
+            <div className="text-xs text-neu-muted">Showing <b className="text-neu-text">1–{suppliers.length}</b> of 45 suppliers</div>
+            <Pagination page={page} totalPages={9} onPageChange={setPage} />
           </div>
         </section>
       </div>

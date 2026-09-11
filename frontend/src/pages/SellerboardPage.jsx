@@ -1,8 +1,6 @@
 import { useLocation, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import usePageTitle from "../hooks/usePageTitle";
-import { useApi } from "../hooks/useApi";
-import { getSellerboardPage } from "../lib/endpoints";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
 import DataTable from "../components/DataTable";
@@ -10,9 +8,7 @@ import ProductThumb from "../components/ProductThumb";
 import ProductCard from "../components/ProductCard";
 import SettingsForm from "../components/SettingsForm";
 import { BarChart } from "../components/MiniChart";
-import LoadingState from "../components/LoadingState";
-import ErrorState from "../components/ErrorState";
-import { sellerboardNav } from "../data/sellerboardData";
+import { sellerboardPages, sellerboardNav } from "../data/sellerboardData";
 
 function buildColumns(columns) {
   return columns.map((c) => {
@@ -44,9 +40,7 @@ function buildColumns(columns) {
         ...c,
         render: (row) => (
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full neu-soft flex items-center justify-center text-[10px] font-semibold text-neu-text">
-              {(row[c.key] || "?").slice(0, 2).toUpperCase()}
-            </div>
+            <img src={row.avatar} alt="" className="w-8 h-8 rounded-full object-cover neu-soft p-0.5" />
             <span className="font-semibold text-neu-text">{row[c.key]}</span>
           </div>
         ),
@@ -58,23 +52,17 @@ function buildColumns(columns) {
 
 export default function SellerboardPage() {
   const { pathname } = useLocation();
+  const config = sellerboardPages[pathname];
   const group = sellerboardNav.find((g) => g.items.some((it) => it.to === pathname));
-  const { data: config, loading, error, refetch } = useApi(() => getSellerboardPage(pathname), [pathname]);
+  usePageTitle(config ? config.title : "Not Found");
 
-  usePageTitle(config ? config.title : "Sellerboard");
-
-  if (loading) return <div className="p-4 sm:p-6 lg:p-8"><LoadingState label="Loading page..." /></div>;
-
-  if (error) {
-    if (error.status === 404) {
-      return <div className="p-4 sm:p-6 lg:p-8 text-sm text-neu-muted">No page configured for this route yet.</div>;
-    }
-    return <div className="p-4 sm:p-6 lg:p-8"><ErrorState error={error} onRetry={refetch} /></div>;
+  if (!config) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 text-sm text-neu-muted">No page configured for this route yet.</div>
+    );
   }
 
-  if (!config) return null;
-
-  const { badge, title, subtitle, kpis, chart, variant, table, table_title: tableTitle, products, settings } = config;
+  const { badge, title, subtitle, kpis, chart, variant, table, tableTitle, products, settings } = config;
 
   return (
       <div className="p-4 sm:p-6 lg:p-8">
@@ -108,7 +96,7 @@ export default function SellerboardPage() {
           {subtitle && <p className="text-sm text-neu-muted mt-1 max-w-2xl">{subtitle}</p>}
         </motion.div>
 
-        {kpis && kpis.length > 0 && (
+        {kpis && (
           <section className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5 mb-6">
             {kpis.map((k, i) => (
               <StatCard key={k.label} {...k} index={i} />
@@ -130,7 +118,7 @@ export default function SellerboardPage() {
         {variant === "products" && (
           <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
             {products.map((p, i) => (
-              <ProductCard key={p.sku || p.name} product={p} index={i} />
+              <ProductCard key={p.sku} product={p} index={i} />
             ))}
           </section>
         )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -13,36 +13,44 @@ import {
   Eye,
   Edit3,
   MoreHorizontal,
+  Smartphone,
+  Laptop,
+  Armchair,
+  Router,
+  Monitor,
 } from "lucide-react";
 import usePageTitle from "../hooks/usePageTitle";
-import { useApi } from "../hooks/useApi";
-import { listProducts, getInventoryKpis } from "../lib/endpoints";
 import Pagination from "../components/Pagination";
 import StatusBadge from "../components/StatusBadge";
 import FulfillmentBadge from "../components/FulfillmentBadge";
-import LoadingState from "../components/LoadingState";
-import ErrorState from "../components/ErrorState";
+import { products, inventoryKpis } from "../data/mockData";
 
+const ICONS = { Smartphone, Laptop, Armchair, Router, Monitor };
 const ICON_BG = {
   Electronics: "bg-accent/15 text-accent",
-  "Home & Kitchen": "bg-warning/15 text-warning",
-  "Sports & Outdoors": "bg-success/15 text-success",
-  Beauty: "bg-danger/15 text-danger",
+  Furniture: "bg-warning/15 text-warning",
+  "Home Appliances": "bg-danger/15 text-danger",
+};
+const TONE_TEXT = {
+  emerald: "text-success",
+  rose: "text-danger",
+  amber: "text-warning",
+  indigo: "text-accent",
+  slate: "text-neu-muted",
 };
 
 export default function Inventory() {
   usePageTitle("Inventory Overview");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
 
-  const { data: kpis } = useApi(getInventoryKpis, []);
-  const {
-    data: productsPage,
-    loading,
-    error,
-    refetch,
-  } = useApi(() => listProducts({ page, pageSize, q: search || undefined }), [page, pageSize, search]);
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return products;
+    return products.filter(
+      (p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)
+    );
+  }, [search]);
 
   return (
       <div className="p-5 md:p-8">
@@ -68,9 +76,26 @@ export default function Inventory() {
           </div>
         </div>
 
-        {kpis && (
-          <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            {kpis.map((k, i) => (
+        <section className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4 mb-6">
+          {inventoryKpis.map((k, i) =>
+            k.label === "Low Stock" ? (
+              <motion.div
+                key={k.label}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.05 }}
+                whileHover={{ y: -4 }}
+              >
+                <Link
+                  to="/inventory/alerts"
+                  className="block neu-card neu-card-hover rounded-2xl p-4"
+                >
+                  <div className="text-[10px] uppercase tracking-wider text-neu-muted leading-tight min-h-[24px] flex items-center">{k.label}</div>
+                  <div className="text-2xl font-bold mt-2 text-neu-text">{k.value}</div>
+                  <div className={`text-xs mt-1 ${TONE_TEXT[k.tone]}`}>{k.delta}</div>
+                </Link>
+              </motion.div>
+            ) : (
               <motion.div
                 key={k.label}
                 initial={{ opacity: 0, y: 16 }}
@@ -81,10 +106,11 @@ export default function Inventory() {
               >
                 <div className="text-[10px] uppercase tracking-wider text-neu-muted leading-tight min-h-[24px] flex items-center">{k.label}</div>
                 <div className="text-2xl font-bold mt-2 text-neu-text">{k.value}</div>
+                <div className={`text-xs mt-1 ${TONE_TEXT[k.tone]}`}>{k.delta}</div>
               </motion.div>
-            ))}
-          </section>
-        )}
+            )
+          )}
+        </section>
 
         <section className="neu-card rounded-2xl p-4 md:p-5 mb-5">
           <div className="flex flex-col xl:flex-row gap-3 justify-between">
@@ -93,12 +119,9 @@ export default function Inventory() {
                 <Search className="w-[18px] h-[18px]" />
                 <input
                   value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(1);
-                  }}
+                  onChange={(e) => setSearch(e.target.value)}
                   className="bg-transparent outline-none w-full placeholder:text-neu-muted text-neu-text"
-                  placeholder="Search products or SKU..."
+                  placeholder="Search products, SKU or ID..."
                 />
               </div>
               <button className="neu-btn h-10 px-3 rounded-xl text-sm font-medium text-neu-muted hover:text-neu-text flex items-center gap-2">
@@ -107,22 +130,21 @@ export default function Inventory() {
             </div>
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <span className="text-neu-muted">Showing</span>
-              <select
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  setPage(1);
-                }}
-                className="neu-input h-10 rounded-xl px-3 text-sm text-neu-text outline-none"
-              >
-                <option value={25}>25 rows</option>
-                <option value={50}>50 rows</option>
-                <option value={100}>100 rows</option>
+              <select className="neu-input h-10 rounded-xl px-3 text-sm text-neu-text outline-none">
+                <option>25 rows</option>
+                <option>50 rows</option>
+                <option>100 rows</option>
               </select>
               <button className="neu-btn h-10 px-3 rounded-xl text-sm font-medium text-neu-muted hover:text-neu-text flex items-center gap-2">
                 <Layers className="w-4 h-4" />Bulk actions<ChevronDown className="w-4 h-4" />
               </button>
             </div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-4">
+            <span className="rounded-full neu-soft text-neu-muted px-3 py-1.5 text-xs flex items-center">Category: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
+            <span className="rounded-full neu-soft text-neu-muted px-3 py-1.5 text-xs flex items-center">Warehouse: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
+            <span className="rounded-full neu-soft text-neu-muted px-3 py-1.5 text-xs flex items-center">Fulfillment: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
+            <span className="rounded-full neu-soft text-neu-muted px-3 py-1.5 text-xs flex items-center">Status: All <ChevronDown className="w-3.5 h-3.5 ml-1" /></span>
           </div>
         </section>
 
@@ -130,7 +152,7 @@ export default function Inventory() {
           <div className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-semibold text-neu-text">Product inventory</h3>
-              <p className="text-xs text-neu-muted mt-1">{productsPage?.total ?? 0} products across active warehouses</p>
+              <p className="text-xs text-neu-muted mt-1">{products.length} products shown across active warehouses</p>
             </div>
             <div className="flex items-center gap-3 text-xs text-neu-muted">
               <span><i className="inline-block w-2 h-2 rounded-full bg-success mr-1" />Optimal</span>
@@ -138,86 +160,84 @@ export default function Inventory() {
               <span><i className="inline-block w-2 h-2 rounded-full bg-danger mr-1" />Out</span>
             </div>
           </div>
-
-          {loading && <LoadingState label="Loading products..." />}
-          {error && <ErrorState error={error} onRetry={refetch} />}
-
-          {!loading && !error && productsPage && (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[1250px] text-xs">
-                  <thead className="text-[10px] uppercase tracking-wider text-neu-muted">
-                    <tr>
-                      <th className="text-left px-5 py-4"><input type="checkbox" className="accent-[#2FAE72]" /></th>
-                      <th className="text-left">Product</th>
-                      <th className="text-left">SKU</th>
-                      <th className="text-left">Category</th>
-                      <th className="text-left">Fulfillment</th>
-                      <th className="text-right">Stock</th>
-                      <th className="text-right">Reserved</th>
-                      <th className="text-right">Available</th>
-                      <th className="text-right">Reorder Point</th>
-                      <th className="text-right">Unit Cost</th>
-                      <th className="text-right">Total Value</th>
-                      <th className="text-left">Status</th>
-                      <th className="text-left">Last Updated</th>
-                      <th className="text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <AnimatePresence initial={false} mode="popLayout">
-                      {productsPage.items.map((p, i) => (
-                        <motion.tr
-                          key={p.id}
-                          layout
-                          initial={{ opacity: 0, y: -8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.25, delay: i * 0.04 }}
-                          className="hover:bg-black/[0.03] transition-colors"
-                        >
-                          <td className="px-5 py-4"><input type="checkbox" className="accent-[#2FAE72]" /></td>
-                          <td className="font-semibold">
-                            <Link to={`/inventory/${p.id}`} className="flex items-center gap-3">
-                              <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-base ${ICON_BG[p.category] || "bg-accent/15 text-accent"}`}>
-                                {p.icon || "📦"}
-                              </span>
-                              <span className="text-neu-text">{p.name}</span>
-                            </Link>
-                          </td>
-                          <td className="text-neu-muted">#{p.sku}</td>
-                          <td className="text-neu-text">{p.category ?? "—"}</td>
-                          <td><FulfillmentBadge type={p.fulfillment_type} /></td>
-                          <td className="text-right font-semibold text-neu-text">{p.stock.toLocaleString()}</td>
-                          <td className="text-right text-neu-text">{p.reserved.toLocaleString()}</td>
-                          <td className="text-right font-semibold text-neu-text">{p.available.toLocaleString()}</td>
-                          <td className="text-right text-neu-text">{p.reorder_point.toLocaleString()}</td>
-                          <td className="text-right text-neu-text">${Number(p.unit_cost).toLocaleString()}</td>
-                          <td className="text-right font-semibold text-neu-text">${Number(p.total_value).toLocaleString()}</td>
-                          <td><StatusBadge status={p.status} /></td>
-                          <td className="text-neu-muted">{new Date(p.updated_at).toLocaleDateString()}</td>
-                          <td className="text-right">
-                            <div className="flex justify-end">
-                              <Link to={`/inventory/${p.id}`} className="p-2 text-neu-muted hover:text-accent"><Eye className="w-4 h-4" /></Link>
-                              <button className="p-2 text-neu-muted hover:text-accent"><Edit3 className="w-4 h-4" /></button>
-                              <button className="p-2 text-neu-muted hover:text-neu-text"><MoreHorizontal className="w-4 h-4" /></button>
-                            </div>
-                          </td>
-                        </motion.tr>
-                      ))}
-                    </AnimatePresence>
-                  </tbody>
-                </table>
-              </div>
-              <div className="px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neu-muted">
-                <span>
-                  Showing <b className="text-neu-text">{(page - 1) * pageSize + 1}–{Math.min(page * pageSize, productsPage.total)}</b> of{" "}
-                  <b className="text-neu-text">{productsPage.total}</b> products
-                </span>
-                <Pagination page={page} totalPages={productsPage.total_pages} onPageChange={setPage} />
-              </div>
-            </>
-          )}
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[1450px] text-xs">
+              <thead className="text-[10px] uppercase tracking-wider text-neu-muted">
+                <tr>
+                  <th className="text-left px-5 py-4"><input type="checkbox" className="accent-[#2FAE72]" /></th>
+                  <th className="text-left">Product</th>
+                  <th className="text-left">SKU</th>
+                  <th className="text-left">Product ID</th>
+                  <th className="text-left">Category</th>
+                  <th className="text-left">Fulfillment</th>
+                  <th className="text-left">Warehouse</th>
+                  <th className="text-left">Location</th>
+                  <th className="text-right">Stock</th>
+                  <th className="text-right">Reserved</th>
+                  <th className="text-right">Available</th>
+                  <th className="text-right">Reorder Point</th>
+                  <th className="text-right">Unit Cost</th>
+                  <th className="text-right">Total Value</th>
+                  <th className="text-left">Status</th>
+                  <th className="text-left">Last Updated</th>
+                  <th className="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <AnimatePresence initial={false} mode="popLayout">
+                  {filtered.map((p, i) => {
+                    const Icon = ICONS[p.icon] || Smartphone;
+                    return (
+                      <motion.tr
+                        key={p.id}
+                        layout
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.25, delay: i * 0.04 }}
+                        className="hover:bg-black/[0.03] transition-colors"
+                      >
+                        <td className="px-5 py-4"><input type="checkbox" className="accent-[#2FAE72]" /></td>
+                        <td className="font-semibold">
+                          <Link to={`/inventory/${p.id}`} className="flex items-center gap-3">
+                            <span className={`w-8 h-8 rounded-xl flex items-center justify-center ${ICON_BG[p.category] || "bg-accent/15 text-accent"}`}>
+                              <Icon className="w-4 h-4" />
+                            </span>
+                            <span className="text-neu-text">{p.name}</span>
+                          </Link>
+                        </td>
+                        <td className="text-neu-muted">{p.productId}</td>
+                        <td className="text-neu-muted">#{p.sku}</td>
+                        <td className="text-neu-text">{p.category}</td>
+                        <td><FulfillmentBadge type={p.fulfillmentType} /></td>
+                        <td className="text-neu-text">{p.warehouse}</td>
+                        <td className="text-neu-muted">{p.location}</td>
+                        <td className="text-right font-semibold text-neu-text">{p.stock.toLocaleString()}</td>
+                        <td className="text-right text-neu-text">{p.reserved.toLocaleString()}</td>
+                        <td className="text-right font-semibold text-neu-text">{p.available.toLocaleString()}</td>
+                        <td className="text-right text-neu-text">{p.reorderPoint.toLocaleString()}</td>
+                        <td className="text-right text-neu-text">${p.unitCost.toLocaleString()}</td>
+                        <td className="text-right font-semibold text-neu-text">${p.totalValue.toLocaleString()}</td>
+                        <td><StatusBadge status={p.status} /></td>
+                        <td className="text-neu-muted">{p.lastUpdated}</td>
+                        <td className="text-right">
+                          <div className="flex justify-end">
+                            <Link to={`/inventory/${p.id}`} className="p-2 text-neu-muted hover:text-accent"><Eye className="w-4 h-4" /></Link>
+                            <button className="p-2 text-neu-muted hover:text-accent"><Edit3 className="w-4 h-4" /></button>
+                            <button className="p-2 text-neu-muted hover:text-neu-text"><MoreHorizontal className="w-4 h-4" /></button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </AnimatePresence>
+              </tbody>
+            </table>
+          </div>
+          <div className="px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neu-muted">
+            <span>Showing <b className="text-neu-text">1–{filtered.length}</b> of <b className="text-neu-text">2,486</b> products</span>
+            <Pagination page={page} totalPages={498} onPageChange={setPage} />
+          </div>
         </section>
       </div>
   );

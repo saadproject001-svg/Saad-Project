@@ -1,41 +1,29 @@
-import { Fragment } from "react";
 import { motion } from "framer-motion";
 import { Download, Plus, Warehouse as WarehouseIcon } from "lucide-react";
 import usePageTitle from "../hooks/usePageTitle";
-import { useApi } from "../hooks/useApi";
-import { getWarehouseSummary } from "../lib/endpoints";
 import StatCard from "../components/StatCard";
 import StatusBadge from "../components/StatusBadge";
 import CarrierBadge from "../components/CarrierBadge";
-import LoadingState from "../components/LoadingState";
-import ErrorState from "../components/ErrorState";
+import {
+  warehouseKpis,
+  warehouses,
+  incomingShipments,
+  outgoingShipments,
+  pendingTransfers,
+} from "../data/mockData";
 
-const capacityBarColor = (pct) => {
-  if (pct == null) return "bg-neu-muted";
-  if (pct >= 90) return "bg-warning";
+const utilBars = [43, 51, 57, 62, 66, 70, 74, 78, 82];
+const utilLabels = ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+const utilShades = ["bg-accent/20", "bg-accent/30", "bg-accent/30", "bg-accent/45", "bg-accent/45", "bg-accent/65", "bg-accent/65", "bg-accent", "bg-accent"];
+
+const capacityBarColor = (status) => {
+  if (status === "Near Full") return "bg-warning";
+  if (status === "Maintenance") return "bg-neu-muted";
   return "bg-accent";
 };
 
 export default function Warehouse() {
   usePageTitle("Inventory Overview");
-  const { data, loading, error, refetch } = useApi(getWarehouseSummary, []);
-
-  if (loading) return <div className="p-4 sm:p-6 lg:p-8"><LoadingState label="Loading warehouses..." /></div>;
-  if (error) return <div className="p-4 sm:p-6 lg:p-8"><ErrorState error={error} onRetry={refetch} /></div>;
-
-  const { warehouses, incoming_shipments: incoming, outgoing_shipments: outgoing, pending_transfers: transfers } = data;
-
-  const totalValue = warehouses.reduce((sum, w) => sum + w.total_value, 0);
-  const capacities = warehouses.map((w) => w.capacity_used_pct).filter((v) => v != null);
-  const avgCapacity = capacities.length ? Math.round(capacities.reduce((a, b) => a + b, 0) / capacities.length) : 0;
-  const kpis = [
-    { label: "Total Warehouses", value: String(warehouses.length) },
-    { label: "Total Stock Value", value: `$${totalValue.toLocaleString()}` },
-    { label: "Avg. Capacity Used", value: `${avgCapacity}%` },
-    { label: "Active Warehouses", value: String(warehouses.filter((w) => w.status === "Active").length) },
-  ];
-  const byCapacity = [...warehouses].sort((a, b) => (b.capacity_used_pct ?? 0) - (a.capacity_used_pct ?? 0));
-
   return (
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
@@ -54,7 +42,7 @@ export default function Warehouse() {
         </div>
 
         <section className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-6">
-          {kpis.map((k, i) => (
+          {warehouseKpis.map((k, i) => (
             <StatCard key={k.label} {...k} index={i} />
           ))}
         </section>
@@ -63,30 +51,32 @@ export default function Warehouse() {
           <div className="neu-card rounded-2xl p-6 lg:col-span-8">
             <div className="flex items-start justify-between">
               <div>
-                <div className="font-semibold text-sm text-neu-text">Capacity used by warehouse</div>
+                <div className="font-semibold text-sm text-neu-text">Warehouse utilization trends</div>
                 <div className="text-xs text-neu-muted mt-1">Occupied capacity across the network</div>
               </div>
+              <select className="neu-input text-xs rounded-xl px-3 py-2 text-neu-text">
+                <option>Last 12 months</option>
+                <option>Last 6 months</option>
+              </select>
             </div>
             <div className="h-48 flex items-end gap-5 mt-6 px-3">
-              {byCapacity.map((w, i) => (
-                <div key={w.id} className="flex-1 flex flex-col items-center gap-2">
-                  <motion.div
-                    className="w-full rounded-t bg-accent"
-                    initial={{ height: 0 }}
-                    animate={{ height: `${w.capacity_used_pct ?? 0}%` }}
-                    transition={{ duration: 0.6, delay: i * 0.05, ease: "easeOut" }}
-                    style={{ maxHeight: "160px" }}
-                  />
-                </div>
+              {utilBars.map((h, i) => (
+                <motion.div
+                  key={i}
+                  className={`flex-1 rounded-t ${utilShades[i]}`}
+                  initial={{ height: 0 }}
+                  animate={{ height: `${h}%` }}
+                  transition={{ duration: 0.6, delay: i * 0.05, ease: "easeOut" }}
+                />
               ))}
             </div>
             <div className="flex justify-between text-[10px] text-neu-muted mt-3">
-              {byCapacity.map((w) => <span key={w.id} className="truncate max-w-[70px]">{w.name}</span>)}
+              {utilLabels.map((l) => <span key={l}>{l}</span>)}
             </div>
           </div>
 
           <div className="neu-card rounded-2xl p-6 lg:col-span-4">
-            <div className="font-semibold text-sm text-neu-text">Network capacity</div>
+            <div className="font-semibold text-sm text-neu-text">Capacity by region</div>
             <div className="flex items-center justify-center relative mt-4">
               <svg viewBox="0 0 160 160" className="w-40 h-40">
                 <circle cx="80" cy="80" r="57" className="fill-none stroke-[14] stroke-neu-dark/30 -rotate-90 origin-center" />
@@ -96,22 +86,19 @@ export default function Warehouse() {
                   r="57"
                   className="fill-none stroke-[14] stroke-accent -rotate-90 origin-center"
                   initial={{ strokeDasharray: "0 358" }}
-                  animate={{ strokeDasharray: `${(avgCapacity / 100) * 358} 358` }}
+                  animate={{ strokeDasharray: "280 358" }}
                   transition={{ duration: 0.9, ease: "easeOut", delay: 0.1 }}
                 />
               </svg>
               <div className="absolute text-center">
-                <div className="text-2xl font-bold text-neu-text">{avgCapacity}%</div>
+                <div className="text-2xl font-bold text-neu-text">78%</div>
                 <div className="text-[10px] text-neu-muted">UTILIZED</div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-y-2 text-[11px] text-neu-muted mt-4">
-              {byCapacity.slice(0, 4).map((w) => (
-                <Fragment key={w.id}>
-                  <span><i className="inline-block w-2 h-2 rounded-full bg-accent mr-2" />{w.name}</span>
-                  <b className="text-right text-neu-text">{w.capacity_used_pct ?? 0}%</b>
-                </Fragment>
-              ))}
+            <div className="grid grid-cols-2 gap-y-2 text-[11px] text-neu-muted mt-2">
+              <span><i className="inline-block w-2 h-2 rounded-full bg-accent mr-2" />North America</span><b className="text-right text-neu-text">48%</b>
+              <span><i className="inline-block w-2 h-2 rounded-full bg-accent/50 mr-2" />Europe</span><b className="text-right text-neu-text">22%</b>
+              <span><i className="inline-block w-2 h-2 rounded-full bg-accent/25 mr-2" />Asia Pacific</span><b className="text-right text-neu-text">18%</b>
             </div>
           </div>
         </section>
@@ -122,11 +109,12 @@ export default function Warehouse() {
               <div className="font-semibold text-sm text-neu-text">Warehouse network</div>
               <div className="text-xs text-neu-muted mt-1">Capacity and inventory overview by location</div>
             </div>
+            <button className="text-xs text-accent font-semibold">View all warehouses</button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
             {warehouses.map((w, i) => (
               <motion.div
-                key={w.id}
+                key={w.name}
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: i * 0.07, ease: "easeOut" }}
@@ -147,17 +135,18 @@ export default function Warehouse() {
                 >
                   {w.type}
                 </span>
-                <div className="text-xs text-neu-muted mt-1.5">{w.city ?? "—"}</div>
-                <div className="flex justify-between text-[11px] mt-5 mb-2"><span className="text-neu-muted">Capacity</span><b className="text-neu-text">{w.capacity_used_pct ?? "—"}{w.capacity_used_pct != null ? "%" : ""}</b></div>
+                <div className="text-xs text-neu-muted mt-1.5">{w.city}</div>
+                <div className="flex justify-between text-[11px] mt-5 mb-2"><span className="text-neu-muted">Capacity</span><b className="text-neu-text">{w.capacityPct}%</b></div>
                 <div className="h-2 neu-track rounded-full overflow-hidden">
                   <motion.div
-                    className={`h-2 rounded-full ${capacityBarColor(w.capacity_used_pct)}`}
+                    className={`h-2 rounded-full ${capacityBarColor(w.status)}`}
                     initial={{ width: 0 }}
-                    animate={{ width: `${w.capacity_used_pct ?? 0}%` }}
+                    animate={{ width: `${w.capacityPct}%` }}
                     transition={{ duration: 0.7, delay: 0.2 + i * 0.07, ease: "easeOut" }}
                   />
                 </div>
-                <div className="flex justify-between text-[11px] text-neu-muted mt-3"><span>{w.product_count} products</span><span>${w.total_value.toLocaleString()}</span></div>
+                <div className="flex justify-between text-[11px] text-neu-muted mt-3"><span>{w.products}</span><span>{w.value}</span></div>
+                <button className="neu-btn w-full mt-4 h-8 rounded-xl text-[11px] font-semibold text-neu-muted hover:text-neu-text">View details</button>
               </motion.div>
             ))}
           </div>
@@ -167,20 +156,27 @@ export default function Warehouse() {
           <div className="neu-card rounded-2xl overflow-hidden lg:col-span-7">
             <div className="p-6 flex justify-between">
               <div className="font-semibold text-sm text-neu-text">Incoming shipments</div>
+              <button className="text-xs text-accent font-semibold">View all</button>
             </div>
             <table className="w-full text-xs">
               <thead className="text-[10px] tracking-wider text-neu-muted">
-                <tr><th className="text-left px-6 py-4">ORDER</th><th className="text-left">SUPPLIER</th><th className="text-left">CARRIER</th><th className="text-left">WAREHOUSE</th><th className="text-left">ETA</th><th className="text-left">QTY</th></tr>
+                <tr><th className="text-left px-6 py-4">SHIPMENT</th><th className="text-left">SUPPLIER</th><th className="text-left">CARRIER</th><th className="text-left">WAREHOUSE</th><th className="text-left">ETA</th><th className="text-left">QTY</th></tr>
               </thead>
               <tbody>
-                {incoming.map((s, i) => (
-                  <motion.tr key={s.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: i * 0.08 }} className="hover:bg-black/[0.03] transition-colors">
-                    <td className="px-6 py-4 font-semibold text-neu-text">{s.order_number}</td>
-                    <td className="text-neu-text">{s.counterparty_or_destination}</td>
+                {incomingShipments.map((s, i) => (
+                  <motion.tr
+                    key={s.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.08 }}
+                    className="hover:bg-black/[0.03] transition-colors"
+                  >
+                    <td className="px-6 py-4 font-semibold text-neu-text">{s.id}</td>
+                    <td className="text-neu-text">{s.supplier}</td>
                     <td><CarrierBadge carrier={s.carrier} /></td>
-                    <td className="text-neu-text">{s.warehouse_name ?? "—"}</td>
-                    <td className="text-neu-muted">{s.eta ?? "—"}</td>
-                    <td className="font-semibold text-neu-text">{s.quantity.toLocaleString()}</td>
+                    <td className="text-neu-text">{s.warehouse}</td>
+                    <td className="text-neu-muted">{s.eta}</td>
+                    <td className="font-semibold text-neu-text">{s.qty.toLocaleString()}</td>
                   </motion.tr>
                 ))}
               </tbody>
@@ -190,18 +186,25 @@ export default function Warehouse() {
           <div className="neu-card rounded-2xl overflow-hidden lg:col-span-5">
             <div className="p-6 flex justify-between">
               <div className="font-semibold text-sm text-neu-text">Outgoing shipments</div>
+              <button className="text-xs text-accent font-semibold">View all</button>
             </div>
             <table className="w-full text-xs">
               <thead className="text-[10px] tracking-wider text-neu-muted">
                 <tr><th className="text-left px-6 py-4">ORDER</th><th className="text-left">DESTINATION</th><th className="text-left">CARRIER</th><th className="text-left">QTY</th><th className="text-left">STATUS</th></tr>
               </thead>
               <tbody>
-                {outgoing.map((s, i) => (
-                  <motion.tr key={s.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: i * 0.08 }} className="hover:bg-black/[0.03] transition-colors">
-                    <td className="px-6 py-4 font-semibold text-neu-text">{s.order_number}</td>
-                    <td className="text-neu-text">{s.counterparty_or_destination}</td>
+                {outgoingShipments.map((s, i) => (
+                  <motion.tr
+                    key={s.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.08 }}
+                    className="hover:bg-black/[0.03] transition-colors"
+                  >
+                    <td className="px-6 py-4 font-semibold text-neu-text">{s.id}</td>
+                    <td className="text-neu-text">{s.destination}</td>
                     <td><CarrierBadge carrier={s.carrier} /></td>
-                    <td className="text-neu-text">{s.quantity}</td>
+                    <td className="text-neu-text">{s.qty}</td>
                     <td><StatusBadge status={s.status} className="px-2 py-1" /></td>
                   </motion.tr>
                 ))}
@@ -216,19 +219,29 @@ export default function Warehouse() {
               <div className="font-semibold text-sm text-neu-text">Pending transfers</div>
               <div className="text-xs text-neu-muted mt-1">Inventory movement awaiting approval or receipt</div>
             </div>
+            <button className="neu-btn h-9 px-4 rounded-xl text-xs font-semibold text-neu-muted hover:text-neu-text">Manage transfers</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead className="text-[10px] tracking-wider text-neu-muted">
-                <tr><th className="text-left px-6 py-4">TRANSFER</th><th className="text-left">DESTINATION</th><th className="text-left">ITEMS</th><th className="text-left">STATUS</th></tr>
+                <tr><th className="text-left px-6 py-4">TRANSFER ID</th><th className="text-left">SOURCE WAREHOUSE</th><th className="text-left">DESTINATION</th><th className="text-left">ITEMS</th><th className="text-left">REQUESTED</th><th className="text-left">STATUS</th><th className="text-left">ACTION</th></tr>
               </thead>
               <tbody>
-                {transfers.map((t, i) => (
-                  <motion.tr key={t.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: i * 0.08 }} className="hover:bg-black/[0.03] transition-colors">
-                    <td className="px-6 py-4 font-semibold text-neu-text">{t.order_number}</td>
-                    <td className="text-neu-text">{t.warehouse_name ?? t.counterparty_or_destination}</td>
-                    <td className="text-neu-text">{t.quantity}</td>
+                {pendingTransfers.map((t, i) => (
+                  <motion.tr
+                    key={t.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.08 }}
+                    className="hover:bg-black/[0.03] transition-colors"
+                  >
+                    <td className="px-6 py-4 font-semibold text-neu-text">{t.id}</td>
+                    <td className="text-neu-text">{t.source}</td>
+                    <td className="text-neu-text">{t.destination}</td>
+                    <td className="text-neu-text">{t.items}</td>
+                    <td className="text-neu-muted">{t.requested}</td>
                     <td><StatusBadge status={t.status} className="px-2 py-1" /></td>
+                    <td><button className="text-accent font-semibold">{t.action}</button></td>
                   </motion.tr>
                 ))}
               </tbody>

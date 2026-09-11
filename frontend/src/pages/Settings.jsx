@@ -11,15 +11,13 @@ import {
   Warehouse,
   Image,
   Plus,
+  Edit3,
   Trash2,
+  ChevronDown,
 } from "lucide-react";
 import usePageTitle from "../hooks/usePageTitle";
-import { useApi } from "../hooks/useApi";
-import { useAuth } from "../hooks/useAuth";
-import { listTeam, listRoles, inviteTeamMember, removeTeamMember } from "../lib/endpoints";
 import StatusBadge from "../components/StatusBadge";
-import LoadingState from "../components/LoadingState";
-import ErrorState from "../components/ErrorState";
+import { workspaceUsers, permissionMatrix } from "../data/mockData";
 
 const NAV_SECTIONS = [
   {
@@ -50,52 +48,17 @@ const NOTIFICATIONS = [
   { label: "Shipment delayed", checked: true },
   { label: "Stock transfer", checked: false },
   { label: "Supplier issue", checked: true },
+  { label: "Warehouse capacity warning", checked: true },
 ];
-
-const toggleClass =
-  "appearance-none w-9 h-5 rounded-full neu-pressed-sm relative cursor-pointer transition-colors checked:[&::before]:bg-accent before:content-[''] before:absolute before:w-4 before:h-4 before:bg-neu-bg before:rounded-full before:top-0.5 before:left-0.5 before:shadow-[2px_2px_4px_#A3B1C6,-2px_-2px_4px_#FFFFFF] before:transition-transform checked:before:translate-x-4";
-
-function initialsOf(user) {
-  const source = user?.full_name || user?.email || "?";
-  return source.split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("");
-}
 
 export default function Settings() {
   usePageTitle("Inventory Overview");
-  const { organizations, activeOrgId } = useAuth();
-  const activeOrg = organizations.find((o) => o.id === activeOrgId);
   const [activeSection, setActiveSection] = useState("general");
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const [autoApprove, setAutoApprove] = useState(true);
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState("member");
-  const [showInvite, setShowInvite] = useState(false);
-  const [inviteError, setInviteError] = useState(null);
-
-  const { data: team, loading: teamLoading, error: teamError, refetch: refetchTeam } = useApi(listTeam, []);
-  const { data: roles, loading: rolesLoading, error: rolesError } = useApi(listRoles, []);
 
   const toggleNotification = (label) =>
     setNotifications((prev) => prev.map((n) => (n.label === label ? { ...n, checked: !n.checked } : n)));
-
-  async function handleInvite(e) {
-    e.preventDefault();
-    setInviteError(null);
-    try {
-      await inviteTeamMember({ email: inviteEmail, role: inviteRole });
-      setInviteEmail("");
-      setShowInvite(false);
-      refetchTeam();
-    } catch (err) {
-      setInviteError(err.message || "Could not send invite.");
-    }
-  }
-
-  async function handleRemove(membershipId) {
-    if (!window.confirm("Remove this team member?")) return;
-    await removeTeamMember(membershipId);
-    refetchTeam();
-  }
 
   return (
       <div className="p-4 sm:p-6 lg:p-8 max-w-[1280px]">
@@ -148,11 +111,12 @@ export default function Settings() {
                   <h3 className="font-semibold text-sm text-neu-text">General settings</h3>
                   <p className="text-xs text-neu-muted mt-1">Basic information used across your inventory workspace.</p>
                 </div>
+                <span className="text-xs text-success bg-success/15 rounded-full px-2 py-1">All changes saved</span>
               </div>
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
                 <label className="text-xs font-medium text-neu-muted">
                   Company name
-                  <input readOnly value={activeOrg?.name ?? ""} className="neu-input mt-2 w-full h-10 rounded-xl px-3 text-sm text-neu-text" />
+                  <input defaultValue="Inventory Insights Pro" className="neu-input mt-2 w-full h-10 rounded-xl px-3 text-sm text-neu-text" />
                 </label>
                 <label className="text-xs font-medium text-neu-muted">
                   Company logo
@@ -160,6 +124,10 @@ export default function Settings() {
                     <span className="w-6 h-6 rounded-lg neu-soft flex items-center justify-center text-accent"><Image className="w-3.5 h-3.5" /></span>
                     Upload logo <span className="text-neu-muted">PNG, JPG up to 2MB</span>
                   </div>
+                </label>
+                <label className="text-xs font-medium text-neu-muted md:col-span-2">
+                  Business address
+                  <input defaultValue="240 Market Street, San Francisco, CA 94105" className="neu-input mt-2 w-full h-10 rounded-xl px-3 text-sm text-neu-text" />
                 </label>
                 <label className="text-xs font-medium text-neu-muted">
                   Currency
@@ -177,8 +145,15 @@ export default function Settings() {
                     <option>(GMT+00:00) London</option>
                   </select>
                 </label>
+                <label className="text-xs font-medium text-neu-muted">
+                  Date format
+                  <select className="neu-input mt-2 w-full h-10 rounded-xl px-3 text-sm text-neu-text">
+                    <option>MMM DD, YYYY — Jan 24, 2024</option>
+                    <option>DD/MM/YYYY</option>
+                    <option>MM/DD/YYYY</option>
+                  </select>
+                </label>
               </div>
-              <p className="px-6 pb-5 text-[11px] text-neu-muted">Currency, timezone and logo aren&apos;t wired up to persistence yet.</p>
             </section>
 
             <section className="neu-card rounded-2xl overflow-hidden">
@@ -187,112 +162,70 @@ export default function Settings() {
                   <h3 className="font-semibold text-sm text-neu-text">Users &amp; roles</h3>
                   <p className="text-xs text-neu-muted mt-1">Control who can access your workspace.</p>
                 </div>
-                <button onClick={() => setShowInvite((v) => !v)} className="neu-btn-accent h-9 px-3 rounded-xl text-white text-xs font-semibold flex items-center gap-1">
-                  <Plus className="w-3.5 h-3.5" />Invite user
+                <button className="neu-btn-accent h-9 px-3 rounded-xl text-white text-xs font-semibold flex items-center gap-1">
+                  <Plus className="w-3.5 h-3.5" />Add user
                 </button>
               </div>
-
-              {showInvite && (
-                <form onSubmit={handleInvite} className="px-6 pb-4 flex flex-wrap items-end gap-3">
-                  <label className="text-xs font-medium text-neu-muted">
-                    Email
-                    <input
-                      type="email"
-                      required
-                      value={inviteEmail}
-                      onChange={(e) => setInviteEmail(e.target.value)}
-                      className="neu-input mt-2 h-10 rounded-xl px-3 text-sm text-neu-text block"
-                      placeholder="teammate@company.com"
-                    />
-                  </label>
-                  <label className="text-xs font-medium text-neu-muted">
-                    Role
-                    <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)} className="neu-input mt-2 h-10 rounded-xl px-3 text-sm text-neu-text block">
-                      <option value="admin">Admin</option>
-                      <option value="manager">Manager</option>
-                      <option value="member">Member</option>
-                      <option value="viewer">Viewer</option>
-                    </select>
-                  </label>
-                  <button type="submit" className="neu-btn-accent h-10 px-4 rounded-xl text-white text-xs font-semibold">Send invite</button>
-                  {inviteError && <span className="text-xs text-danger">{inviteError}</span>}
-                </form>
-              )}
-
-              {teamLoading && <LoadingState label="Loading team..." />}
-              {teamError && <ErrorState error={teamError} onRetry={refetchTeam} />}
-              {!teamLoading && !teamError && team && (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead className="text-[10px] tracking-wider text-neu-muted">
-                      <tr><th className="text-left px-6 py-4">USER</th><th className="text-left">EMAIL</th><th className="text-left">ROLE</th><th className="text-left">STATUS</th><th className="text-left">LAST LOGIN</th><th className="text-left">ACTIONS</th></tr>
-                    </thead>
-                    <tbody>
-                      {team.map((m, i) => (
-                        <motion.tr
-                          key={m.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3, delay: i * 0.07 }}
-                          className="hover:bg-black/[0.03] transition-colors"
-                        >
-                          <td className="px-6 py-4 flex items-center gap-3">
-                            {m.user.avatar_url ? (
-                              <img src={m.user.avatar_url} className="w-8 h-8 rounded-full neu-soft p-0.5" alt="" />
-                            ) : (
-                              <span className="w-8 h-8 rounded-full neu-soft flex items-center justify-center text-[10px] font-semibold text-neu-text">{initialsOf(m.user)}</span>
-                            )}
-                            <span className="font-semibold text-neu-text">{m.user.full_name || m.user.email}</span>
-                          </td>
-                          <td className="text-neu-muted">{m.user.email}</td>
-                          <td className="text-neu-text capitalize">{m.role.name}</td>
-                          <td><StatusBadge status={m.status === "active" ? "Active" : m.status === "invited" ? "Pending" : "Inactive"} className="px-2 py-1" /></td>
-                          <td className="text-neu-muted">{m.user.last_login_at ? new Date(m.user.last_login_at).toLocaleDateString() : "Never"}</td>
-                          <td>
-                            <button onClick={() => handleRemove(m.id)} className="text-neu-muted hover:text-danger"><Trash2 className="w-4 h-4" /></button>
-                          </td>
-                        </motion.tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead className="text-[10px] tracking-wider text-neu-muted">
+                    <tr><th className="text-left px-6 py-4">USER</th><th className="text-left">EMAIL</th><th className="text-left">ROLE</th><th className="text-left">STATUS</th><th className="text-left">LAST LOGIN</th><th className="text-left">ACTIONS</th></tr>
+                  </thead>
+                  <tbody>
+                    {workspaceUsers.map((u, i) => (
+                      <motion.tr
+                        key={u.email}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: i * 0.07 }}
+                        className="hover:bg-black/[0.03] transition-colors"
+                      >
+                        <td className="px-6 py-4 flex items-center gap-3"><img src={u.avatar} className="w-8 h-8 rounded-full neu-soft p-0.5" alt="" /><span className="font-semibold text-neu-text">{u.name}</span></td>
+                        <td className="text-neu-muted">{u.email}</td>
+                        <td className="text-neu-text">{u.role}</td>
+                        <td><StatusBadge status={u.status} className="px-2 py-1" /></td>
+                        <td className="text-neu-muted">{u.lastLogin}</td>
+                        <td>
+                          <button className="text-neu-muted mr-3 hover:text-accent"><Edit3 className="w-4 h-4" /></button>
+                          <button className="text-neu-muted hover:text-danger"><Trash2 className="w-4 h-4" /></button>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </section>
 
             <section className="neu-card rounded-2xl overflow-hidden">
               <div className="p-6">
                 <h3 className="font-semibold text-sm text-neu-text">Permissions control</h3>
-                <p className="text-xs text-neu-muted mt-1">Real per-org roles and their granted permissions.</p>
+                <p className="text-xs text-neu-muted mt-1">Configure module access for each role.</p>
               </div>
-              {rolesLoading && <LoadingState label="Loading roles..." />}
-              {rolesError && <ErrorState error={rolesError} />}
-              {!rolesLoading && !rolesError && roles && (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead className="text-[10px] tracking-wider text-neu-muted">
-                      <tr><th className="text-left px-6 py-4">ROLE</th><th className="text-left">PERMISSIONS</th></tr>
-                    </thead>
-                    <tbody>
-                      {roles.map((r) => (
-                        <tr key={r.id} className="text-neu-text">
-                          <td className="px-6 py-3 font-semibold capitalize align-top">{r.name}</td>
-                          <td className="py-3 text-neu-muted">
-                            <div className="flex flex-wrap gap-1.5">
-                              {r.permissions.length === 0 ? (
-                                <span>No permissions</span>
-                              ) : (
-                                r.permissions.map((p) => (
-                                  <span key={p} className="rounded-full bg-neu-dark/15 px-2 py-0.5 text-[10px]">{p}</span>
-                                ))
-                              )}
-                            </div>
-                          </td>
-                        </tr>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead className="text-[10px] tracking-wider text-neu-muted">
+                    <tr>
+                      <th className="text-left px-6 py-4">ROLE</th>
+                      {permissionMatrix.modules.map((m) => (
+                        <th key={m}>{m.toUpperCase()}</th>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {permissionMatrix.roles.map((r, i) => (
+                      <tr key={r.role} className="text-neu-text">
+                        <td className="px-6 py-3 font-semibold">{r.role}</td>
+                        {r.access.map((granted, j) => (
+                          <td key={j} className="text-center"><input type="checkbox" defaultChecked={granted} readOnly className="accent-[#2FAE72]" /></td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="px-6 py-4 text-xs text-accent font-medium flex items-center gap-1 cursor-pointer">
+                + Show all roles <ChevronDown className="w-3.5 h-3.5" />
+              </div>
             </section>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -303,7 +236,12 @@ export default function Settings() {
                   {notifications.map((n) => (
                     <label key={n.label} className="flex justify-between items-center text-sm cursor-pointer text-neu-text">
                       {n.label}
-                      <input type="checkbox" checked={n.checked} onChange={() => toggleNotification(n.label)} className={toggleClass} />
+                      <input
+                        type="checkbox"
+                        checked={n.checked}
+                        onChange={() => toggleNotification(n.label)}
+                        className="appearance-none w-9 h-5 rounded-full neu-pressed-sm relative cursor-pointer transition-colors checked:[&::before]:bg-accent before:content-[''] before:absolute before:w-4 before:h-4 before:bg-neu-bg before:rounded-full before:top-0.5 before:left-0.5 before:shadow-[2px_2px_4px_#A3B1C6,-2px_-2px_4px_#FFFFFF] before:transition-transform checked:before:translate-x-4"
+                      />
                     </label>
                   ))}
                 </div>
@@ -326,6 +264,23 @@ export default function Settings() {
                         <option>LIFO</option>
                       </select>
                     </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="text-xs font-medium text-neu-muted">
+                        Units
+                        <select className="neu-input mt-2 w-full h-10 rounded-xl px-3 text-sm text-neu-text">
+                          <option>Pieces</option>
+                          <option>Cases</option>
+                          <option>Kilograms</option>
+                        </select>
+                      </label>
+                      <label className="text-xs font-medium text-neu-muted">
+                        Default warehouse
+                        <select className="neu-input mt-2 w-full h-10 rounded-xl px-3 text-sm text-neu-text">
+                          <option>Main Distribution Center</option>
+                          <option>East Coast Warehouse</option>
+                        </select>
+                      </label>
+                    </div>
                   </div>
                 </div>
 
@@ -340,10 +295,30 @@ export default function Settings() {
                       Auto-approve under
                       <input defaultValue="$1,000" className="neu-input mt-2 w-full h-10 rounded-xl px-3 text-sm text-neu-text" />
                     </label>
+                    <label className="text-xs font-medium text-neu-muted">
+                      Payment terms
+                      <select className="neu-input mt-2 w-full h-10 rounded-xl px-3 text-sm text-neu-text">
+                        <option>Net 30</option>
+                        <option>Net 60</option>
+                        <option>Net 90</option>
+                      </select>
+                    </label>
+                    <label className="text-xs font-medium text-neu-muted">
+                      Location structure
+                      <select className="neu-input mt-2 w-full h-10 rounded-xl px-3 text-sm text-neu-text">
+                        <option>Zone / Aisle / Rack / Bin</option>
+                        <option>Custom structure</option>
+                      </select>
+                    </label>
                   </div>
                   <div className="mt-5 pt-4 flex justify-between items-center">
                     <span className="text-xs text-neu-muted">Enable automatic transfer approvals</span>
-                    <input type="checkbox" checked={autoApprove} onChange={() => setAutoApprove((v) => !v)} className={toggleClass} />
+                    <input
+                      type="checkbox"
+                      checked={autoApprove}
+                      onChange={() => setAutoApprove((v) => !v)}
+                      className="appearance-none w-9 h-5 rounded-full neu-pressed-sm relative cursor-pointer transition-colors checked:[&::before]:bg-accent before:content-[''] before:absolute before:w-4 before:h-4 before:bg-neu-bg before:rounded-full before:top-0.5 before:left-0.5 before:shadow-[2px_2px_4px_#A3B1C6,-2px_-2px_4px_#FFFFFF] before:transition-transform checked:before:translate-x-4"
+                    />
                   </div>
                 </div>
               </section>
