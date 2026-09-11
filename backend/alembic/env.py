@@ -19,7 +19,13 @@ settings = get_settings()
 # connecting role to own the schema — the runtime app role (settings.database_url)
 # should NOT have that ownership, so it can't be tricked/abused into altering its
 # own RLS policies. See app/config.py's migrations_database_url docstring.
-config.set_main_option("sqlalchemy.url", settings.resolved_migrations_database_url)
+# alembic.ini is parsed by configparser, whose default interpolation treats a
+# bare "%" as the start of a %(name)s reference — a URL-encoded password
+# (e.g. "%40" for "@") trips this with "invalid interpolation syntax" unless
+# every literal "%" is doubled first (configparser's own escaping convention).
+config.set_main_option(
+    "sqlalchemy.url", settings.resolved_migrations_database_url.replace("%", "%%")
+)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
